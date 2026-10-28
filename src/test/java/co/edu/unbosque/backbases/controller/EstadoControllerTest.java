@@ -12,19 +12,15 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import co.edu.unbosque.backbases.configuration.CorsConfig;
 import co.edu.unbosque.backbases.dto.EstadoDTO;
-import co.edu.unbosque.backbases.security.SecurityConfig;
+import co.edu.unbosque.backbases.security.PruebaWebSegura;
 import co.edu.unbosque.backbases.service.EstadoService;
 
 @WebMvcTest(EstadoController.class)
-@Import({ SecurityConfig.class, CorsConfig.class })
-@TestPropertySource(properties = "app.cors.allowed-origins=http://localhost:4200")
+@PruebaWebSegura
 class EstadoControllerTest {
 
 	@Autowired
