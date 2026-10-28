@@ -14,11 +14,9 @@ import co.edu.unbosque.backbases.entity.Producto;
 import co.edu.unbosque.backbases.entity.Sucursal;
 import co.edu.unbosque.backbases.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.backbases.exception.ReglaNegocioException;
-import co.edu.unbosque.backbases.exception.SinPermisoException;
 import co.edu.unbosque.backbases.repository.InventarioRepository;
 import co.edu.unbosque.backbases.repository.ProductoRepository;
 import co.edu.unbosque.backbases.repository.SucursalRepository;
-import co.edu.unbosque.backbases.security.UsuarioAutenticado;
 
 @Service
 public class InventarioService {
@@ -35,13 +33,16 @@ public class InventarioService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<InventarioDTO> deSucursal(Integer idSucursal, String texto, UsuarioAutenticado usuario) {
-		if (!usuario.esAdministrador() && !idSucursal.equals(usuario.idSucursal())) {
-			throw new SinPermisoException("Solo puede consultar el inventario de su sucursal.");
-		}
+	public List<InventarioDTO> deSucursal(Integer idSucursal, String texto) {
 		buscarSucursal(idSucursal);
 		String filtro = texto == null || texto.isBlank() ? null : texto.trim();
 		return inventarioRepository.deSucursal(idSucursal, filtro).stream().map(InventarioDTO::de).toList();
+	}
+
+	@Transactional(readOnly = true)
+	public List<InventarioDTO> todo(String texto) {
+		String filtro = texto == null || texto.isBlank() ? null : texto.trim();
+		return inventarioRepository.todo(filtro).stream().map(InventarioDTO::de).toList();
 	}
 
 	@Transactional(readOnly = true)

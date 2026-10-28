@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.backbases.dto.InventarioDTO;
 import co.edu.unbosque.backbases.dto.SucursalDTO;
 import co.edu.unbosque.backbases.dto.SucursalEntradaDTO;
-import co.edu.unbosque.backbases.security.UsuarioAutenticado;
 import co.edu.unbosque.backbases.service.InventarioService;
 import co.edu.unbosque.backbases.service.SucursalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,10 +50,9 @@ public class SucursalController {
 	}
 
 	@GetMapping("/{idSucursal}/inventario")
-	@Operation(summary = "Inventario de una sucursal; el vendedor solo puede ver el de la suya")
-	public List<InventarioDTO> inventario(@PathVariable Integer idSucursal, @RequestParam(required = false) String q,
-			@AuthenticationPrincipal UsuarioAutenticado usuario) {
-		return inventarioService.deSucursal(idSucursal, q, usuario);
+	@Operation(summary = "Inventario de una sucursal")
+	public List<InventarioDTO> inventario(@PathVariable Integer idSucursal, @RequestParam(required = false) String q) {
+		return inventarioService.deSucursal(idSucursal, q);
 	}
 
 	@PostMapping

@@ -1,5 +1,6 @@
 package co.edu.unbosque.backbases.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -86,7 +87,8 @@ class AuthIntegracionTest {
 		String administrador = "Bearer " + token("laura.gomez@ferreteria.demo");
 
 		mvc.perform(get("/api/marcas").header("Authorization", vendedor)).andExpect(status().isOk());
-		mvc.perform(get("/api/empleados").header("Authorization", vendedor))
+		mvc.perform(get("/api/empleados").header("Authorization", vendedor)).andExpect(status().isOk());
+		mvc.perform(delete("/api/empleados/2").header("Authorization", vendedor))
 				.andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
 		mvc.perform(get("/api/empleados").header("Authorization", administrador))

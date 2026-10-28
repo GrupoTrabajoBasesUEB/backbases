@@ -1,6 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.edu.unbosque.backbases.dto.LineaVendidaDTO;
 import co.edu.unbosque.backbases.dto.PaginaDTO;
 import co.edu.unbosque.backbases.dto.VentaDTO;
 import co.edu.unbosque.backbases.dto.VentaEntradaDTO;
@@ -57,6 +59,19 @@ public class VentaController {
 			@RequestParam(defaultValue = "20") int tamano,
 			@AuthenticationPrincipal UsuarioAutenticado usuario) {
 		return ventaService.buscar(desde, hasta, idSucursal, idEmpleado, idCliente, idMetodoPago, factura, pagina, tamano, usuario);
+	}
+
+	@GetMapping("/lineas")
+	@Operation(summary = "Líneas vendidas (DETALLE_VENTA unido con VENTA) que cumplen los filtros, sin paginar")
+	public List<LineaVendidaDTO> lineas(
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+			@RequestParam(required = false) Integer idSucursal,
+			@RequestParam(required = false) Integer idEmpleado,
+			@RequestParam(required = false) Integer idCliente,
+			@RequestParam(required = false) Integer idMetodoPago,
+			@AuthenticationPrincipal UsuarioAutenticado usuario) {
+		return ventaService.lineas(desde, hasta, idSucursal, idEmpleado, idCliente, idMetodoPago, usuario);
 	}
 
 	@GetMapping("/{idVenta}")

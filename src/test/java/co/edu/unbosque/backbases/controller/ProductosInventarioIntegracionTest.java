@@ -126,11 +126,14 @@ class ProductosInventarioIntegracionTest {
 
 	@Test
 	@ComoEmpleado(id = 3, rol = Rol.VENDEDOR, idSucursal = 1)
-	void elVendedorVeSoloElInventarioDeSuSede() throws Exception {
-		mvc.perform(get("/api/sucursales/1/inventario")).andExpect(status().isOk());
-		mvc.perform(get("/api/sucursales/2/inventario"))
-				.andExpect(status().isForbidden())
-				.andExpect(jsonPath("$.mensaje").value("Solo puede consultar el inventario de su sucursal."));
+	void elVendedorConsultaElInventarioDeTodasLasSedesPeroNoLoModifica() throws Exception {
+		mvc.perform(get("/api/sucursales/2/inventario")).andExpect(status().isOk());
+		mvc.perform(get("/api/inventario").param("q", "HM-0001"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(3));
+		mvc.perform(put("/api/inventario/1/1").contentType(MediaType.APPLICATION_JSON)
+				.content("{\"cantidadDisponible\":1,\"ubicacionBodega\":\"x\"}"))
+				.andExpect(status().isForbidden());
 		mvc.perform(post("/api/inventario/1/1/entradas").contentType(MediaType.APPLICATION_JSON).content("{\"unidades\":1}"))
 				.andExpect(status().isForbidden());
 	}

@@ -16,17 +16,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import co.edu.unbosque.backbases.dto.EntradaMercanciaDTO;
-import co.edu.unbosque.backbases.dto.Rol;
 import co.edu.unbosque.backbases.entity.Inventario;
 import co.edu.unbosque.backbases.entity.InventarioId;
 import co.edu.unbosque.backbases.entity.Producto;
 import co.edu.unbosque.backbases.entity.Sucursal;
 import co.edu.unbosque.backbases.exception.ReglaNegocioException;
-import co.edu.unbosque.backbases.exception.SinPermisoException;
+import co.edu.unbosque.backbases.exception.RecursoNoEncontradoException;
 import co.edu.unbosque.backbases.repository.InventarioRepository;
 import co.edu.unbosque.backbases.repository.ProductoRepository;
 import co.edu.unbosque.backbases.repository.SucursalRepository;
-import co.edu.unbosque.backbases.security.UsuarioAutenticado;
 
 @ExtendWith(MockitoExtension.class)
 class InventarioServiceTest {
@@ -56,12 +54,12 @@ class InventarioServiceTest {
 	}
 
 	@Test
-	void elVendedorSoloVeElInventarioDeSuSede() {
-		UsuarioAutenticado camila = new UsuarioAutenticado(3, "camila@x.co", Rol.VENDEDOR, 1);
+	void elInventarioDeUnaSucursalInexistenteDa404() {
+		when(sucursalRepository.findById(9)).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> inventarioService.deSucursal(2, null, camila))
-				.isInstanceOf(SinPermisoException.class)
-				.hasMessage("Solo puede consultar el inventario de su sucursal.");
+		assertThatThrownBy(() -> inventarioService.deSucursal(9, null))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe la sucursal con id 9.");
 	}
 
 	@Test

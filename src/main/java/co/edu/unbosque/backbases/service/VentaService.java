@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.unbosque.backbases.dto.LineaVendidaDTO;
 import co.edu.unbosque.backbases.dto.LineaVentaDTO;
 import co.edu.unbosque.backbases.dto.LineaVentaEntradaDTO;
 import co.edu.unbosque.backbases.dto.PaginaDTO;
@@ -149,6 +150,13 @@ public class VentaService {
 						totales.getOrDefault(v.getIdVenta(), BigDecimal.ZERO), null))
 				.toList();
 		return new PaginaDTO<>(contenido, resultado.getNumber(), resultado.getSize(), resultado.getTotalElements(), resultado.getTotalPages());
+	}
+
+	@Transactional(readOnly = true)
+	public List<LineaVendidaDTO> lineas(LocalDate desde, LocalDate hasta, Integer idSucursal, Integer idEmpleado, Integer idCliente,
+			Integer idMetodoPago, UsuarioAutenticado usuario) {
+		Integer sucursal = sucursalPermitida(idSucursal, usuario);
+		return detalleRepository.lineas(desde, hasta, sucursal, idEmpleado, idCliente, idMetodoPago).stream().map(LineaVendidaDTO::de).toList();
 	}
 
 	@Transactional(readOnly = true)

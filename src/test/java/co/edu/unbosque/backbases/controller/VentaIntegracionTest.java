@@ -116,6 +116,18 @@ class VentaIntegracionTest {
 	}
 
 	@Test
+	void lasLineasVendidasUnenDetalleYVentaSoloDeLaSede() throws Exception {
+		Integer lineas = jdbc.queryForObject(
+				"SELECT COUNT(*) FROM DETALLE_VENTA d JOIN VENTA v ON v.ID_VENTA = d.ID_VENTA WHERE v.ID_SUCURSAL = 1", Integer.class);
+
+		mvc.perform(get("/api/ventas/lineas"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(lineas))
+				.andExpect(jsonPath("$[*].idSucursal").value(everyItem(is(1))));
+		mvc.perform(get("/api/ventas/lineas").param("idSucursal", "2")).andExpect(status().isForbidden());
+	}
+
+	@Test
 	@ComoEmpleado(id = 1)
 	void elAdministradorFiltraYPaginaPeroNoVende() throws Exception {
 		Integer efectivo = jdbc.queryForObject("SELECT COUNT(*) FROM VENTA WHERE ID_METODO_PAGO = 1", Integer.class);

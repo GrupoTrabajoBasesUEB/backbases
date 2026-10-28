@@ -27,7 +27,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/empleados")
-@PreAuthorize("hasRole('ADMINISTRADOR')")
 @Tag(name = "Empleados")
 public class EmpleadoController {
 
@@ -51,12 +50,14 @@ public class EmpleadoController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
 	@Operation(summary = "Crear un administrador o un vendedor")
 	public EmpleadoDTO crear(@Valid @RequestBody EmpleadoEntradaDTO entrada) {
 		return empleadoService.crear(entrada);
 	}
 
 	@PutMapping("/{idEmpleado}")
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
 	@Operation(summary = "Actualizar un empleado; la contraseña y la clave solo cambian si se envían")
 	public EmpleadoDTO actualizar(@PathVariable Integer idEmpleado, @Valid @RequestBody EmpleadoEntradaDTO entrada) {
 		return empleadoService.actualizar(idEmpleado, entrada);
@@ -64,6 +65,7 @@ public class EmpleadoController {
 
 	@DeleteMapping("/{idEmpleado}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
 	@Operation(summary = "Eliminar un empleado sin ventas, evaluaciones ni sucursal a cargo")
 	public void eliminar(@PathVariable Integer idEmpleado, @AuthenticationPrincipal UsuarioAutenticado usuario) {
 		empleadoService.eliminar(idEmpleado, usuario.idEmpleado());
