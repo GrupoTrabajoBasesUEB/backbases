@@ -11,7 +11,7 @@ import co.edu.unbosque.backbases.entity.Vendedor;
 
 public interface VendedorRepository extends JpaRepository<Vendedor, Integer> {
 
-	@Query("select v from Vendedor v join fetch v.sucursal where v.idEmpleado = :idEmpleado")
+	@Query("select v from Vendedor v join fetch v.sucursal join fetch v.empleado where v.idEmpleado = :idEmpleado")
 	Optional<Vendedor> buscarConSucursal(@Param("idEmpleado") Integer idEmpleado);
 
 	@Query("select v from Vendedor v join fetch v.sucursal")

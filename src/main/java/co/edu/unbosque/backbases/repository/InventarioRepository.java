@@ -37,4 +37,14 @@ public interface InventarioRepository extends JpaRepository<Inventario, Inventar
 			""", nativeQuery = true)
 	int sumarEntrada(@Param("idSucursal") Integer idSucursal, @Param("idProducto") Integer idProducto,
 			@Param("unidades") int unidades, @Param("ubicacion") String ubicacion);
+
+	@Modifying(flushAutomatically = true)
+	@Query(value = """
+			UPDATE INVENTARIO SET CANTIDAD_DISPONIBLE = CANTIDAD_DISPONIBLE - :unidades
+			WHERE ID_SUCURSAL = :idSucursal AND ID_PRODUCTO = :idProducto AND CANTIDAD_DISPONIBLE >= :unidades
+			""", nativeQuery = true)
+	int descontar(@Param("idSucursal") Integer idSucursal, @Param("idProducto") Integer idProducto, @Param("unidades") int unidades);
+
+	@Query(value = "SELECT CANTIDAD_DISPONIBLE FROM INVENTARIO WHERE ID_SUCURSAL = :idSucursal AND ID_PRODUCTO = :idProducto", nativeQuery = true)
+	Optional<Integer> cantidad(@Param("idSucursal") Integer idSucursal, @Param("idProducto") Integer idProducto);
 }
