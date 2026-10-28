@@ -16,22 +16,18 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import co.edu.unbosque.backbases.configuration.CorsConfig;
 import co.edu.unbosque.backbases.dto.MarcaDTO;
 import co.edu.unbosque.backbases.exception.ConflictoException;
-import co.edu.unbosque.backbases.security.SecurityConfig;
+import co.edu.unbosque.backbases.security.PruebaWebSegura;
 import co.edu.unbosque.backbases.service.MarcaService;
 
 @WebMvcTest(MarcaController.class)
-@Import({ SecurityConfig.class, CorsConfig.class })
-@TestPropertySource(properties = "app.cors.allowed-origins=http://localhost:4200")
+@PruebaWebSegura
 class MarcaControllerTest {
 
 	@Autowired
