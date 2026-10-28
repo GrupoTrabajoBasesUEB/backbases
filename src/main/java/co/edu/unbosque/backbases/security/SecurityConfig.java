@@ -11,11 +11,10 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import co.edu.unbosque.backbases.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,15 +30,17 @@ public class SecurityConfig {
 	};
 
 	@Bean
-	public SecurityFilterChain filtros(HttpSecurity http, ObjectMapper json) throws Exception {
+	public SecurityFilterChain filtros(HttpSecurity http, ObjectMapper json, JwtService jwtService) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
 				.cors(Customizer.withDefaults())
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.httpBasic(b -> b.disable())
 				.formLogin(f -> f.disable())
+				.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
 				.authorizeHttpRequests(a -> a
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 						.requestMatchers(PUBLICAS).permitAll()
 						.anyRequest().authenticated())
 				.exceptionHandling(e -> e
@@ -53,13 +54,6 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
-	public UserDetailsService userDetailsService() {
-		return correo -> {
-			throw new UsernameNotFoundException("Sin usuarios configurados todavía.");
-		};
 	}
 
 	private static void escribir(HttpServletResponse res, ObjectMapper json, ErrorDTO error) throws IOException {
