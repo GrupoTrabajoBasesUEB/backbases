@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -64,6 +65,10 @@ class EstadisticaIntegracionTest {
 		return valores.stream().map(n -> new BigDecimal(n.toString())).reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
+	private int filas(String tabla) {
+		return jdbc.queryForObject("SELECT COUNT(*) FROM " + tabla, Integer.class);
+	}
+
 	private BigDecimal totalVendido() {
 		return jdbc.queryForObject("SELECT SUM(MONTO_TOTAL) FROM V_VENTA_TOTAL", BigDecimal.class);
 	}
@@ -101,9 +106,9 @@ class EstadisticaIntegracionTest {
 		String metodos = json(consulta("por-metodo-pago"));
 		String vendedores = json(consulta("por-vendedor"));
 
-		assertThat(JsonPath.<List<?>>read(sucursales, "$")).hasSize(3);
-		assertThat(JsonPath.<List<?>>read(metodos, "$")).hasSize(4);
-		assertThat(JsonPath.<List<?>>read(vendedores, "$")).hasSize(4);
+		assertThat(JsonPath.<List<?>>read(sucursales, "$")).hasSize(filas("SUCURSAL"));
+		assertThat(JsonPath.<List<?>>read(metodos, "$")).hasSize(filas("METODO_PAGO"));
+		assertThat(JsonPath.<List<?>>read(vendedores, "$")).hasSize(filas("VENDEDOR"));
 		assertThat(suma(sucursales, "$[*].total")).isEqualByComparingTo(totalVendido());
 		assertThat(suma(metodos, "$[*].total")).isEqualByComparingTo(totalVendido());
 		assertThat(suma(vendedores, "$[*].total")).isEqualByComparingTo(totalVendido());
@@ -117,7 +122,7 @@ class EstadisticaIntegracionTest {
 		assertThat(new BigDecimal(totales.get(0).toString())).isGreaterThanOrEqualTo(new BigDecimal(totales.get(2).toString()));
 
 		String rendimiento = json(consulta("rendimiento-productos"));
-		assertThat(JsonPath.<List<?>>read(rendimiento, "$")).hasSize(16);
+		assertThat(JsonPath.<List<?>>read(rendimiento, "$")).hasSize(filas("PRODUCTO"));
 		assertThat(suma(rendimiento, "$[*].total")).isEqualByComparingTo(totalVendido());
 	}
 
@@ -145,10 +150,12 @@ class EstadisticaIntegracionTest {
 
 		String comisiones = json(consulta("comisiones"));
 		List<Number> totales = JsonPath.read(comisiones, "$[*].total");
+		List<Number> tasas = JsonPath.read(comisiones, "$[*].tasa");
 		List<Number> valores = JsonPath.read(comisiones, "$[*].comision");
+		assertThat(totales).hasSize(filas("VENDEDOR"));
 		for (int i = 0; i < totales.size(); i++) {
 			assertThat(new BigDecimal(valores.get(i).toString()))
-					.isEqualByComparingTo(new BigDecimal(totales.get(i).toString()).multiply(new BigDecimal("0.1")));
+					.isEqualByComparingTo(new BigDecimal(totales.get(i).toString()).multiply(new BigDecimal(tasas.get(i).toString())).setScale(2, RoundingMode.HALF_UP));
 		}
 	}
 
