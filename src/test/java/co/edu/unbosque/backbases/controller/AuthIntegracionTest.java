@@ -97,4 +97,16 @@ class AuthIntegracionTest {
 		mvc.perform(get("/api/empleados").param("rol", "VENDEDOR").header("Authorization", administrador))
 				.andExpect(jsonPath("$.length()").value(12));
 	}
+
+	@Test
+	void elNivelDelTokenEsElDeLaBase() throws Exception {
+		String nivel1 = "Bearer " + token("ricardo.moreno@ferreteria.demo");
+
+		mvc.perform(get("/api/productos").header("Authorization", nivel1)).andExpect(status().isOk());
+		mvc.perform(get("/api/proveedores").header("Authorization", nivel1))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
+		mvc.perform(get("/api/proveedores").header("Authorization", "Bearer " + token("andres.pardo@ferreteria.demo")))
+				.andExpect(status().isOk());
+	}
 }

@@ -50,14 +50,14 @@ public class EmpleadoController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Crear un administrador o un vendedor")
 	public EmpleadoDTO crear(@Valid @RequestBody EmpleadoEntradaDTO entrada) {
 		return empleadoService.crear(entrada);
 	}
 
 	@PutMapping("/{idEmpleado}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Actualizar un empleado; la contraseña y la clave solo cambian si se envían")
 	public EmpleadoDTO actualizar(@PathVariable Integer idEmpleado, @Valid @RequestBody EmpleadoEntradaDTO entrada) {
 		return empleadoService.actualizar(idEmpleado, entrada);
@@ -65,7 +65,7 @@ public class EmpleadoController {
 
 	@DeleteMapping("/{idEmpleado}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Eliminar un empleado sin ventas, evaluaciones ni sucursal a cargo")
 	public void eliminar(@PathVariable Integer idEmpleado, @AuthenticationPrincipal UsuarioAutenticado usuario) {
 		empleadoService.eliminar(idEmpleado, usuario.idEmpleado());

@@ -46,14 +46,14 @@ public class MarcaController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Crear una marca")
 	public MarcaDTO crear(@Valid @RequestBody MarcaEntradaDTO entrada) {
 		return marcaService.crear(entrada);
 	}
 
 	@PutMapping("/{idMarca}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Actualizar una marca")
 	public MarcaDTO actualizar(@PathVariable Integer idMarca, @Valid @RequestBody MarcaEntradaDTO entrada) {
 		return marcaService.actualizar(idMarca, entrada);
@@ -61,7 +61,7 @@ public class MarcaController {
 
 	@DeleteMapping("/{idMarca}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Eliminar una marca que no tenga productos")
 	public void eliminar(@PathVariable Integer idMarca) {
 		marcaService.eliminar(idMarca);

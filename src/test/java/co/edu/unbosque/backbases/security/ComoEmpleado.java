@@ -4,10 +4,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContext;
@@ -28,15 +26,17 @@ public @interface ComoEmpleado {
 
 	int idSucursal() default 0;
 
+	int nivel() default 3;
+
 	class Fabrica implements WithSecurityContextFactory<ComoEmpleado> {
 
 		@Override
 		public SecurityContext createSecurityContext(ComoEmpleado anotacion) {
 			UsuarioAutenticado usuario = new UsuarioAutenticado(anotacion.id(), "prueba@ferreteria.demo", anotacion.rol(),
-					anotacion.idSucursal() == 0 ? null : anotacion.idSucursal());
+					anotacion.idSucursal() == 0 ? null : anotacion.idSucursal(),
+					anotacion.rol() == Rol.ADMINISTRADOR ? anotacion.nivel() : null);
 			SecurityContext contexto = SecurityContextHolder.createEmptyContext();
-			contexto.setAuthentication(new UsernamePasswordAuthenticationToken(usuario, null,
-					List.of(new SimpleGrantedAuthority("ROLE_" + anotacion.rol().name()))));
+			contexto.setAuthentication(new UsernamePasswordAuthenticationToken(usuario, null, usuario.permisos()));
 			return contexto;
 		}
 	}

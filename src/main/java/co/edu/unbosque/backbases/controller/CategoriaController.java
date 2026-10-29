@@ -54,14 +54,14 @@ public class CategoriaController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Crear una categoría o subcategoría")
 	public CategoriaDTO crear(@Valid @RequestBody CategoriaEntradaDTO entrada) {
 		return categoriaService.crear(entrada);
 	}
 
 	@PutMapping("/{idCategoria}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Actualizar una categoría")
 	public CategoriaDTO actualizar(@PathVariable Integer idCategoria, @Valid @RequestBody CategoriaEntradaDTO entrada) {
 		return categoriaService.actualizar(idCategoria, entrada);
@@ -69,7 +69,7 @@ public class CategoriaController {
 
 	@DeleteMapping("/{idCategoria}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Eliminar una categoría sin subcategorías ni productos")
 	public void eliminar(@PathVariable Integer idCategoria) {
 		categoriaService.eliminar(idCategoria);

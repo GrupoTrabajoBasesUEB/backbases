@@ -27,7 +27,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/evaluaciones")
-@PreAuthorize("hasRole('ADMINISTRADOR')")
+@PreAuthorize("hasAuthority('NIVEL_2')")
 @Tag(name = "Evaluaciones de calidad")
 public class EvaluacionController {
 

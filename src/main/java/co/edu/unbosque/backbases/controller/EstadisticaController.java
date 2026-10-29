@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -139,6 +140,7 @@ public class EstadisticaController {
 	}
 
 	@GetMapping("/comisiones")
+	@PreAuthorize("hasRole('VENDEDOR') or hasAuthority('NIVEL_3')")
 	@Operation(summary = "Comisión de cada vendedor en el periodo; el vendedor solo ve la suya")
 	public List<Comision> comisiones(
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,

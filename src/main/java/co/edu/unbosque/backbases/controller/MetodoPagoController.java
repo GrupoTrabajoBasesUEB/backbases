@@ -46,14 +46,14 @@ public class MetodoPagoController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Crear un método de pago")
 	public MetodoPagoDTO crear(@Valid @RequestBody MetodoPagoEntradaDTO entrada) {
 		return metodoPagoService.crear(entrada);
 	}
 
 	@PutMapping("/{idMetodoPago}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Actualizar un método de pago")
 	public MetodoPagoDTO actualizar(@PathVariable Integer idMetodoPago, @Valid @RequestBody MetodoPagoEntradaDTO entrada) {
 		return metodoPagoService.actualizar(idMetodoPago, entrada);
@@ -61,7 +61,7 @@ public class MetodoPagoController {
 
 	@DeleteMapping("/{idMetodoPago}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Eliminar un método de pago sin ventas")
 	public void eliminar(@PathVariable Integer idMetodoPago) {
 		metodoPagoService.eliminar(idMetodoPago);

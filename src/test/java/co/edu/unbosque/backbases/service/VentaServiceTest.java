@@ -66,7 +66,7 @@ class VentaServiceTest {
 	@InjectMocks
 	private VentaService ventaService;
 
-	private static final UsuarioAutenticado CAMILA = new UsuarioAutenticado(3, "camila@x.co", Rol.VENDEDOR, 1);
+	private static final UsuarioAutenticado CAMILA = new UsuarioAutenticado(3, "camila@x.co", Rol.VENDEDOR, 1, null);
 
 	private void prepararVenta(Producto... productos) {
 		Sucursal centro = new Sucursal();
@@ -100,7 +100,7 @@ class VentaServiceTest {
 
 	@Test
 	void soloUnVendedorRegistraVentas() {
-		UsuarioAutenticado laura = new UsuarioAutenticado(1, "laura@x.co", Rol.ADMINISTRADOR, null);
+		UsuarioAutenticado laura = new UsuarioAutenticado(1, "laura@x.co", Rol.ADMINISTRADOR, null, 3);
 		when(vendedorRepository.buscarConSucursal(1)).thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> ventaService.registrar(new VentaEntradaDTO(null, 1, List.of(new LineaVentaEntradaDTO(1, 1))), laura))

@@ -38,7 +38,8 @@ public class AuthService {
 		if (empleado.rol() == null) {
 			throw new CredencialesInvalidasException();
 		}
-		UsuarioAutenticado usuario = new UsuarioAutenticado(empleado.idEmpleado(), empleado.correo(), empleado.rol(), empleado.idSucursal());
+		UsuarioAutenticado usuario = new UsuarioAutenticado(empleado.idEmpleado(), empleado.correo(), empleado.rol(), empleado.idSucursal(),
+				empleado.nivelAcceso());
 		return SesionDTO.bearer(jwtService.generar(usuario), jwtService.getVigenciaMs(), empleado);
 	}
 

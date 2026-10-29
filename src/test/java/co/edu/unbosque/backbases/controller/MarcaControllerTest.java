@@ -69,7 +69,7 @@ class MarcaControllerTest {
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMINISTRADOR")
+	@ComoEmpleado
 	void elAdministradorCreaYRecibe201() throws Exception {
 		when(marcaService.crear(any())).thenReturn(new MarcaDTO(8, "Makita", "Japón"));
 
@@ -80,7 +80,7 @@ class MarcaControllerTest {
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMINISTRADOR")
+	@ComoEmpleado
 	void datosIncompletosDevuelven400ConLosCampos() throws Exception {
 		mvc.perform(post("/api/marcas").contentType(MediaType.APPLICATION_JSON).content("{\"nombreMarca\":\"\"}"))
 				.andExpect(status().isBadRequest())

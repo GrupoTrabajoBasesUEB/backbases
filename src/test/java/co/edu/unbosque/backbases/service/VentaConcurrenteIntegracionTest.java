@@ -53,7 +53,7 @@ class VentaConcurrenteIntegracionTest {
 	}
 
 	private static UsuarioAutenticado vendedor(int id) {
-		return new UsuarioAutenticado(id, "vendedor@x.co", Rol.VENDEDOR, SEDE_NORTE);
+		return new UsuarioAutenticado(id, "vendedor@x.co", Rol.VENDEDOR, SEDE_NORTE, null);
 	}
 
 	@BeforeEach

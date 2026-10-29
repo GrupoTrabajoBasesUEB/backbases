@@ -49,7 +49,7 @@ class ProveedoresServiceTest {
 			sucursalRepository);
 	private final EvaluacionService evaluacionService = new EvaluacionService(evaluacionRepository, suministroRepository, administradorRepository);
 
-	private static final UsuarioAutenticado LAURA = new UsuarioAutenticado(1, "laura@x.co", Rol.ADMINISTRADOR, null);
+	private static final UsuarioAutenticado LAURA = new UsuarioAutenticado(1, "laura@x.co", Rol.ADMINISTRADOR, null, 3);
 
 	private static Proveedor proveedor(String nit) {
 		Proveedor p = new Proveedor();
@@ -128,7 +128,7 @@ class ProveedoresServiceTest {
 
 	@Test
 	void soloUnAdministradorEvalua() {
-		UsuarioAutenticado camila = new UsuarioAutenticado(3, "camila@x.co", Rol.VENDEDOR, 1);
+		UsuarioAutenticado camila = new UsuarioAutenticado(3, "camila@x.co", Rol.VENDEDOR, 1, null);
 		when(administradorRepository.findById(3)).thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> evaluacionService.registrar(evaluacion(null), camila)).isInstanceOf(SinPermisoException.class);

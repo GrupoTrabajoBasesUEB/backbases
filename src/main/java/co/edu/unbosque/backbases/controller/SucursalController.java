@@ -57,14 +57,14 @@ public class SucursalController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Crear una sucursal con su administrador encargado")
 	public SucursalDTO crear(@Valid @RequestBody SucursalEntradaDTO entrada) {
 		return sucursalService.crear(entrada);
 	}
 
 	@PutMapping("/{idSucursal}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Actualizar una sucursal o cambiar su encargado")
 	public SucursalDTO actualizar(@PathVariable Integer idSucursal, @Valid @RequestBody SucursalEntradaDTO entrada) {
 		return sucursalService.actualizar(idSucursal, entrada);
@@ -72,7 +72,7 @@ public class SucursalController {
 
 	@DeleteMapping("/{idSucursal}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	@Operation(summary = "Eliminar una sucursal sin ventas, inventario, suministros ni vendedores")
 	public void eliminar(@PathVariable Integer idSucursal) {
 		sucursalService.eliminar(idSucursal);

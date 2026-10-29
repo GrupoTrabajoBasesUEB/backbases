@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/proveedores")
-@PreAuthorize("hasRole('ADMINISTRADOR')")
+@PreAuthorize("hasAuthority('NIVEL_2')")
 @Tag(name = "Proveedores")
 public class ProveedorController {
 
