@@ -1,5 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -98,10 +100,10 @@ class EmpleadoIntegracionTest {
 
 	@Test
 	void noEliminaAQuienTieneHistorialNiASiMismo() throws Exception {
-		mvc.perform(delete("/api/empleados/3"))
+		mvc.perform(delete("/api/empleados/3").header(ENCABEZADO, CLAVE_ADMINISTRADOR))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.mensaje").value(org.hamcrest.Matchers.startsWith("No se puede eliminar el empleado: la usan")));
-		mvc.perform(delete("/api/empleados/1"))
+		mvc.perform(delete("/api/empleados/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.mensaje").value("No puede eliminar su propio usuario."));
 	}
@@ -110,7 +112,7 @@ class EmpleadoIntegracionTest {
 	void eliminaUnEmpleadoSinHistorial() throws Exception {
 		String id = crear(vendedor("1099888777", "valentina.mora@ferreteria.demo"));
 
-		mvc.perform(delete("/api/empleados/" + id)).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/empleados/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
 		mvc.perform(get("/api/empleados/" + id)).andExpect(status().isNotFound());
 	}
 

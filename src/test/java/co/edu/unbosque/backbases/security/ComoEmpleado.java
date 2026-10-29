@@ -20,6 +20,8 @@ import co.edu.unbosque.backbases.dto.Rol;
 @WithSecurityContext(factory = ComoEmpleado.Fabrica.class)
 public @interface ComoEmpleado {
 
+	String CLAVE_ADMINISTRADOR = "demo-admin";
+
 	int id() default 1;
 
 	Rol rol() default Rol.ADMINISTRADOR;

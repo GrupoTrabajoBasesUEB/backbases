@@ -1,5 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
@@ -77,8 +79,8 @@ class ProveedoresIntegracionTest {
 				.content(NUEVO.replace("Cali", "Palmira")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.direccionProveedor").value("Calle 5 # 38-20, Palmira"));
-		mvc.perform(delete("/api/proveedores/901777666-4")).andExpect(status().isNoContent());
-		mvc.perform(delete("/api/proveedores/900215334-1")).andExpect(status().isConflict());
+		mvc.perform(delete("/api/proveedores/901777666-4").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/proveedores/900215334-1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 	}
 
 	@Test
@@ -100,7 +102,7 @@ class ProveedoresIntegracionTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.cantidadEvaluaciones").value(((Number) evaluado.get("N")).intValue()))
 				.andExpect(jsonPath("$.promedioCalificacion").isNumber());
-		mvc.perform(delete(ruta)).andExpect(status().isConflict());
+		mvc.perform(delete(ruta).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 		mvc.perform(get("/api/suministros").param("idSucursal", "3"))
 				.andExpect(jsonPath("$[*].nombreSucursal").value(everyItem(is("Sede Laureles"))));
 	}
@@ -120,7 +122,7 @@ class ProveedoresIntegracionTest {
 				.content("{\"precioSuministro\":49500,\"tiempoEntregaDias\":4}"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.tiempoEntregaDias").value(4));
-		mvc.perform(delete("/api/suministros/901777666-4/12/3")).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/suministros/901777666-4/12/3").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
 	}
 
 	@Test

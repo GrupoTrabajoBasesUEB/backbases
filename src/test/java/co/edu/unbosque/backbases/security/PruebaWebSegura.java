@@ -7,12 +7,15 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import co.edu.unbosque.backbases.configuration.CorsConfig;
+import co.edu.unbosque.backbases.service.ClaveSeguridadService;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Import({ SecurityConfig.class, CorsConfig.class, JwtService.class })
+@MockitoBean(types = ClaveSeguridadService.class)
 @TestPropertySource(properties = {
 		"app.cors.allowed-origins=http://localhost:4200",
 		"jwt.secret=c2VjcmV0by1zb2xvLXBhcmEtcHJ1ZWJhcy1kZWwtYmFjay0yNTYtYml0cyEhIQ==",

@@ -1,5 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -79,8 +81,8 @@ class ProductosInventarioIntegracionTest {
 				{"codigo":"hm-0099","nombreProducto":"Otro","costoCompra":1,"precioBaseVenta":2,"idCategoria":2,"idMarca":2}
 				"""))
 				.andExpect(status().isConflict());
-		mvc.perform(delete("/api/productos/" + id)).andExpect(status().isNoContent());
-		mvc.perform(delete("/api/productos/1")).andExpect(status().isConflict());
+		mvc.perform(delete("/api/productos/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/productos/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 	}
 
 	@Test
@@ -103,7 +105,7 @@ class ProductosInventarioIntegracionTest {
 
 	@Test
 	void ajustarYRetirarDelInventario() throws Exception {
-		mvc.perform(delete("/api/inventario/1/1")).andExpect(status().isBadRequest());
+		mvc.perform(delete("/api/inventario/1/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isBadRequest());
 		mvc.perform(put("/api/inventario/1/1").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"cantidadDisponible\":0,\"ubicacionBodega\":\"Pasillo 1, estante A\"}"))
 				.andExpect(status().isOk());
