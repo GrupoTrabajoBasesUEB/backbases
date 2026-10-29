@@ -57,7 +57,7 @@ class ClienteIntegracionTest {
 		mvc.perform(get("/api/clientes").param("q", "altos del rio"))
 				.andExpect(jsonPath("$[0].tipo").value("JURIDICO"));
 		mvc.perform(get("/api/clientes").param("tipo", "JURIDICO"))
-				.andExpect(jsonPath("$.length()").value(2));
+				.andExpect(jsonPath("$.length()").value(4));
 	}
 
 	@Test

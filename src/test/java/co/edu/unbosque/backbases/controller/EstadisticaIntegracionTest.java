@@ -90,6 +90,7 @@ class EstadisticaIntegracionTest {
 
 	@Test
 	void ventasPorDiaIncluyeLosDiasSinVentas() throws Exception {
+		desde = desde.minusDays(2);
 		String json = json(consulta("ventas-por-dia"));
 
 		List<String> fechas = JsonPath.read(json, "$[*].fecha");

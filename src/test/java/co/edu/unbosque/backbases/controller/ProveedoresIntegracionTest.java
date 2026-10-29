@@ -57,11 +57,11 @@ class ProveedoresIntegracionTest {
 	void proveedoresConSusTelefonosYCorreos() throws Exception {
 		mvc.perform(get("/api/proveedores"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(4));
+				.andExpect(jsonPath("$.length()").value(10));
 		mvc.perform(get("/api/proveedores/900215334-1"))
 				.andExpect(jsonPath("$.telefonos.length()").value(2))
 				.andExpect(jsonPath("$.correos").value(containsInAnyOrder("pedidos@ferreandina.demo", "cartera@ferreandina.demo")));
-		mvc.perform(get("/api/proveedores").param("q", "caribe"))
+		mvc.perform(get("/api/proveedores").param("q", "herramientas del caribe"))
 				.andExpect(jsonPath("$.length()").value(1))
 				.andExpect(jsonPath("$[0].nit").value("830104552-8"));
 	}

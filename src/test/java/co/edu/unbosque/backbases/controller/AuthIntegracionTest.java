@@ -93,8 +93,8 @@ class AuthIntegracionTest {
 				.andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
 		mvc.perform(get("/api/empleados").header("Authorization", administrador))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(7));
+				.andExpect(jsonPath("$.length()").value(23));
 		mvc.perform(get("/api/empleados").param("rol", "VENDEDOR").header("Authorization", administrador))
-				.andExpect(jsonPath("$.length()").value(4));
+				.andExpect(jsonPath("$.length()").value(12));
 	}
 }

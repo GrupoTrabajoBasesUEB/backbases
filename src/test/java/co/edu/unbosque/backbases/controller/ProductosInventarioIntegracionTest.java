@@ -51,7 +51,7 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(jsonPath("$.stock").value(suma))
 				.andExpect(jsonPath("$.nombreMarca").value("Stanley"));
 		mvc.perform(get("/api/productos/1/inventario"))
-				.andExpect(jsonPath("$.length()").value(3))
+				.andExpect(jsonPath("$.length()").value(10))
 				.andExpect(jsonPath("$[*].nombreSucursal").value(hasItem("Sede Laureles")));
 	}
 
@@ -61,7 +61,7 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.length()").value(5));
 		mvc.perform(get("/api/productos").param("q", "taladro"))
-				.andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$.length()").value(3))
 				.andExpect(jsonPath("$[*].nombreCategoria").value(everyItem(is("Taladros"))));
 	}
 
@@ -120,7 +120,7 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.mensaje").value("Ese administrador ya dirige la sucursal \"Sede Centro\"."));
 		mvc.perform(get("/api/sucursales"))
-				.andExpect(jsonPath("$.length()").value(3))
+				.andExpect(jsonPath("$.length()").value(10))
 				.andExpect(jsonPath("$[?(@.nombreSucursal == 'Sede Laureles')].nombreAdministrador").value(hasItem("Sofía Restrepo")));
 	}
 
@@ -130,7 +130,7 @@ class ProductosInventarioIntegracionTest {
 		mvc.perform(get("/api/sucursales/2/inventario")).andExpect(status().isOk());
 		mvc.perform(get("/api/inventario").param("q", "HM-0001"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(3));
+				.andExpect(jsonPath("$.length()").value(10));
 		mvc.perform(put("/api/inventario/1/1").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"cantidadDisponible\":1,\"ubicacionBodega\":\"x\"}"))
 				.andExpect(status().isForbidden());

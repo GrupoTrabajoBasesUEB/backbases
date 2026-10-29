@@ -50,15 +50,15 @@ class CatalogosIntegracionTest {
 	@Test
 	void creaActualizaYEliminaUnaMarcaNueva() throws Exception {
 		String respuesta = mvc.perform(post("/api/marcas").contentType(MediaType.APPLICATION_JSON)
-				.content("{\"nombreMarca\":\"Makita\",\"paisOrigen\":\"Japón\"}"))
+				.content("{\"nombreMarca\":\"Milwaukee\",\"paisOrigen\":\"Estados Unidos\"}"))
 				.andExpect(status().isCreated())
 				.andReturn().getResponse().getContentAsString();
 		String id = respuesta.replaceAll(".*\"idMarca\":(\\d+).*", "$1");
 
 		mvc.perform(put("/api/marcas/" + id).contentType(MediaType.APPLICATION_JSON)
-				.content("{\"nombreMarca\":\"Makita\",\"paisOrigen\":\"Japón (Anjo)\"}"))
+				.content("{\"nombreMarca\":\"Milwaukee\",\"paisOrigen\":\"Estados Unidos (Wisconsin)\"}"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.paisOrigen").value("Japón (Anjo)"));
+				.andExpect(jsonPath("$.paisOrigen").value("Estados Unidos (Wisconsin)"));
 		mvc.perform(delete("/api/marcas/" + id)).andExpect(status().isNoContent());
 		mvc.perform(get("/api/marcas/" + id)).andExpect(status().isNotFound());
 	}
