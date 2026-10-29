@@ -58,12 +58,6 @@ public class ClienteService {
 		return aDTO(buscarCliente(idCliente));
 	}
 
-	@Transactional(readOnly = true)
-	public ClienteDTO consumidorFinal() {
-		return aDTO(clienteRepository.findByNumeroDocumento(Cliente.DOCUMENTO_CONSUMIDOR_FINAL)
-				.orElseThrow(() -> new RecursoNoEncontradoException("No está registrado el cliente consumidor final.")));
-	}
-
 	@Transactional
 	public ClienteDTO crear(ClienteEntradaDTO entrada) {
 		String documento = validarDocumento(entrada, null);

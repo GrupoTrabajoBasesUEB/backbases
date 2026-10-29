@@ -85,7 +85,7 @@ class ClaveSeguridadIntegracionTest {
 		assertThat(evaluaciones(1)).isEqualTo(1);
 
 		mvc.perform(delete("/api/evaluaciones/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
-		mvc.perform(get("/api/evaluaciones/1")).andExpect(status().isNotFound());
+		mvc.perform(get("/api/evaluaciones")).andExpect(jsonPath("$[?(@.idEvaluacion == 1)]").isEmpty());
 	}
 
 	@Test

@@ -27,11 +27,6 @@ public class MetodoPagoService {
 		return metodoPagoRepository.findAllByOrderByTipoAsc().stream().map(MetodoPagoDTO::de).toList();
 	}
 
-	@Transactional(readOnly = true)
-	public MetodoPagoDTO obtener(Integer idMetodoPago) {
-		return MetodoPagoDTO.de(buscar(idMetodoPago));
-	}
-
 	@Transactional
 	public MetodoPagoDTO crear(MetodoPagoEntradaDTO entrada) {
 		String tipo = entrada.tipo().trim();

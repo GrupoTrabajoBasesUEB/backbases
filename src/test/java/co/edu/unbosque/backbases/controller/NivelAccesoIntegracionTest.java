@@ -61,7 +61,7 @@ class NivelAccesoIntegracionTest {
 	@ParameterizedTest
 	@ValueSource(strings = { "/api/marcas", "/api/categorias", "/api/metodos-pago", "/api/sucursales", "/api/empleados",
 			"/api/sucursales/1/inventario", "/api/productos", "/api/inventario", "/api/clientes", "/api/ventas", "/api/ventas/lineas",
-			"/api/estadisticas/resumen", "/api/estadisticas/sucursales", "/api/estadisticas/stock-bajo" })
+			"/api/estadisticas/resumen", "/api/estadisticas/sucursales", "/api/estadisticas/rendimiento-productos" })
 	@ComoEmpleado(id = 10, nivel = 1)
 	void elNivel1LeeSuAreaYLasListasDeApoyo(String ruta) throws Exception {
 		permitido(get(ruta));

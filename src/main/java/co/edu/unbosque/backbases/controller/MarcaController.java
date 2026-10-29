@@ -17,13 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.backbases.dto.MarcaDTO;
 import co.edu.unbosque.backbases.dto.MarcaEntradaDTO;
 import co.edu.unbosque.backbases.service.MarcaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/marcas")
-@Tag(name = "Marcas")
 public class MarcaController {
 
 	private final MarcaService marcaService;
@@ -33,28 +30,19 @@ public class MarcaController {
 	}
 
 	@GetMapping
-	@Operation(summary = "Listar marcas")
 	public List<MarcaDTO> listar() {
 		return marcaService.listar();
-	}
-
-	@GetMapping("/{idMarca}")
-	@Operation(summary = "Obtener una marca")
-	public MarcaDTO obtener(@PathVariable Integer idMarca) {
-		return marcaService.obtener(idMarca);
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasAuthority('NIVEL_3')")
-	@Operation(summary = "Crear una marca")
 	public MarcaDTO crear(@Valid @RequestBody MarcaEntradaDTO entrada) {
 		return marcaService.crear(entrada);
 	}
 
 	@PutMapping("/{idMarca}")
 	@PreAuthorize("hasAuthority('NIVEL_3')")
-	@Operation(summary = "Actualizar una marca")
 	public MarcaDTO actualizar(@PathVariable Integer idMarca, @Valid @RequestBody MarcaEntradaDTO entrada) {
 		return marcaService.actualizar(idMarca, entrada);
 	}
@@ -62,7 +50,6 @@ public class MarcaController {
 	@DeleteMapping("/{idMarca}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@PreAuthorize("hasAuthority('NIVEL_3')")
-	@Operation(summary = "Eliminar una marca que no tenga productos")
 	public void eliminar(@PathVariable Integer idMarca) {
 		marcaService.eliminar(idMarca);
 	}

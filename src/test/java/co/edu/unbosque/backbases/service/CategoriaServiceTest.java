@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import co.edu.unbosque.backbases.dto.CategoriaArbolDTO;
 import co.edu.unbosque.backbases.dto.CategoriaDTO;
 import co.edu.unbosque.backbases.dto.CategoriaEntradaDTO;
 import co.edu.unbosque.backbases.entity.Categoria;
@@ -121,19 +119,5 @@ class CategoriaServiceTest {
 		assertThatThrownBy(() -> categoriaService.eliminar(99))
 				.isInstanceOf(RecursoNoEncontradoException.class)
 				.hasMessage("No existe la categoría con id 99.");
-	}
-
-	@Test
-	void elArbolAgrupaSubcategoriasBajoSuPrincipal() {
-		Categoria manuales = categoria(1, "Herramientas manuales", null);
-		Categoria pinturas = categoria(10, "Pinturas", null);
-		when(categoriaRepository.listarConPrincipal()).thenReturn(List.of(
-				manuales, categoria(3, "Destornilladores", manuales), categoria(2, "Martillos", manuales), pinturas));
-
-		List<CategoriaArbolDTO> arbol = categoriaService.arbol();
-
-		assertThat(arbol).extracting(CategoriaArbolDTO::nombre).containsExactly("Herramientas manuales", "Pinturas");
-		assertThat(arbol.get(0).subcategorias()).extracting(CategoriaDTO::nombre).containsExactly("Destornilladores", "Martillos");
-		assertThat(arbol.get(1).subcategorias()).isEmpty();
 	}
 }

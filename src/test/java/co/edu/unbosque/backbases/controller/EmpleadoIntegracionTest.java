@@ -113,7 +113,7 @@ class EmpleadoIntegracionTest {
 		String id = crear(vendedor("1099888777", "valentina.mora@ferreteria.demo"));
 
 		mvc.perform(delete("/api/empleados/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
-		mvc.perform(get("/api/empleados/" + id)).andExpect(status().isNotFound());
+		mvc.perform(get("/api/empleados")).andExpect(jsonPath("$[?(@.idEmpleado == " + id + ")]").isEmpty());
 	}
 
 	@Test

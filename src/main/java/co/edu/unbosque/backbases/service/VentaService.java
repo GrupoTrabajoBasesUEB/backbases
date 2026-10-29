@@ -27,7 +27,6 @@ import co.edu.unbosque.backbases.dto.PaginaDTO;
 import co.edu.unbosque.backbases.dto.VentaDTO;
 import co.edu.unbosque.backbases.dto.VentaEntradaDTO;
 import co.edu.unbosque.backbases.entity.Cliente;
-import co.edu.unbosque.backbases.entity.ClienteJuridico;
 import co.edu.unbosque.backbases.entity.ClienteNatural;
 import co.edu.unbosque.backbases.entity.DetalleVenta;
 import co.edu.unbosque.backbases.entity.Empleado;

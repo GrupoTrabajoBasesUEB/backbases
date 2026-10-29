@@ -107,6 +107,23 @@ class MarcaControllerTest {
 	}
 
 	@Test
+	void elFrontDeDesarrolloPasaCors() throws Exception {
+		mvc.perform(options("/api/marcas")
+				.header("Origin", "http://localhost:4200")
+				.header("Access-Control-Request-Method", "GET"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:4200"));
+	}
+
+	@Test
+	void unOrigenDesconocidoNoPasaCors() throws Exception {
+		mvc.perform(options("/api/marcas")
+				.header("Origin", "https://otro-sitio.example")
+				.header("Access-Control-Request-Method", "GET"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	void elNavegadorPuedeEnviarLaClaveAlEliminar() throws Exception {
 		mvc.perform(options("/api/marcas/8")
 				.header("Origin", "http://localhost:4200")

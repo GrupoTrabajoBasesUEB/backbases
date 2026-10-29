@@ -34,11 +34,6 @@ public class SucursalService {
 		return sucursalRepository.listarConEncargado().stream().map(SucursalDTO::de).toList();
 	}
 
-	@Transactional(readOnly = true)
-	public SucursalDTO obtener(Integer idSucursal) {
-		return SucursalDTO.de(buscar(idSucursal));
-	}
-
 	@Transactional
 	public SucursalDTO crear(SucursalEntradaDTO entrada) {
 		String nombre = entrada.nombreSucursal().trim();

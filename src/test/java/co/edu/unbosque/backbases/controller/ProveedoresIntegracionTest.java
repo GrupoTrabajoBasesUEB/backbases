@@ -98,10 +98,12 @@ class ProveedoresIntegracionTest {
 				""");
 		String ruta = "/api/suministros/" + evaluado.get("NIT") + "/" + evaluado.get("ID_PRODUCTO") + "/" + evaluado.get("ID_SUCURSAL");
 
-		mvc.perform(get(ruta))
+		mvc.perform(get("/api/suministros").param("nit", evaluado.get("NIT").toString())
+				.param("idProducto", evaluado.get("ID_PRODUCTO").toString()).param("idSucursal", evaluado.get("ID_SUCURSAL").toString()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.cantidadEvaluaciones").value(((Number) evaluado.get("N")).intValue()))
-				.andExpect(jsonPath("$.promedioCalificacion").isNumber());
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].cantidadEvaluaciones").value(((Number) evaluado.get("N")).intValue()))
+				.andExpect(jsonPath("$[0].promedioCalificacion").isNumber());
 		mvc.perform(delete(ruta).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 		mvc.perform(get("/api/suministros").param("idSucursal", "3"))
 				.andExpect(jsonPath("$[*].nombreSucursal").value(everyItem(is("Sede Laureles"))));

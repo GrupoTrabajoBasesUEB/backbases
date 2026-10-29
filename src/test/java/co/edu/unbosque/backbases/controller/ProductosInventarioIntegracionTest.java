@@ -52,7 +52,7 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(jsonPath("$.codigo").value("HM-0001"))
 				.andExpect(jsonPath("$.stock").value(suma))
 				.andExpect(jsonPath("$.nombreMarca").value("Stanley"));
-		mvc.perform(get("/api/productos/1/inventario"))
+		mvc.perform(get("/api/inventario").param("q", "HM-0001"))
 				.andExpect(jsonPath("$.length()").value(10))
 				.andExpect(jsonPath("$[*].nombreSucursal").value(hasItem("Sede Laureles")));
 	}

@@ -45,12 +45,6 @@ public class InventarioService {
 		return inventarioRepository.todo(filtro).stream().map(InventarioDTO::de).toList();
 	}
 
-	@Transactional(readOnly = true)
-	public List<InventarioDTO> deProducto(Integer idProducto) {
-		buscarProducto(idProducto);
-		return inventarioRepository.deProducto(idProducto).stream().map(InventarioDTO::de).toList();
-	}
-
 	@Transactional
 	public InventarioDTO guardar(Integer idSucursal, Integer idProducto, InventarioEntradaDTO entrada) {
 		Inventario registro = inventarioRepository.buscar(new InventarioId(idSucursal, idProducto))

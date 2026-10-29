@@ -4,6 +4,7 @@ import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCAB
 import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -63,7 +64,7 @@ class CatalogosIntegracionTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.paisOrigen").value("Estados Unidos (Wisconsin)"));
 		mvc.perform(delete("/api/marcas/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
-		mvc.perform(get("/api/marcas/" + id)).andExpect(status().isNotFound());
+		mvc.perform(get("/api/marcas")).andExpect(jsonPath("$[?(@.idMarca == " + id + ")]").isEmpty());
 	}
 
 	@Test
@@ -78,13 +79,12 @@ class CatalogosIntegracionTest {
 	}
 
 	@Test
-	void elArbolTieneLasSeisPrincipalesConSusSubcategorias() throws Exception {
-		mvc.perform(get("/api/categorias/arbol"))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(6))
-				.andExpect(jsonPath("$[?(@.nombre == 'Herramientas manuales')].subcategorias.length()").value(3));
+	void hayDosNivelesDeCategorias() throws Exception {
 		mvc.perform(get("/api/categorias").param("soloPrincipales", "true"))
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.length()").value(6));
+		mvc.perform(get("/api/categorias"))
+				.andExpect(jsonPath("$[?(@.idCategoriaPrincipal == 1)]", hasSize(3)));
 	}
 
 	@Test

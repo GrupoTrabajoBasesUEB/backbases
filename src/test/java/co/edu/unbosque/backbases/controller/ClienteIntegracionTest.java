@@ -64,10 +64,11 @@ class ClienteIntegracionTest {
 
 	@Test
 	void elConsumidorFinalEstaDisponibleYProtegido() throws Exception {
-		mvc.perform(get("/api/clientes/consumidor-final"))
+		mvc.perform(get("/api/clientes").param("q", "222222222222"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.consumidorFinal").value(true))
-				.andExpect(jsonPath("$.numeroDocumento").value("222222222222"));
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].consumidorFinal").value(true))
+				.andExpect(jsonPath("$[0].idCliente").value(7));
 		mvc.perform(delete("/api/clientes/7").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isBadRequest());
 	}
 
