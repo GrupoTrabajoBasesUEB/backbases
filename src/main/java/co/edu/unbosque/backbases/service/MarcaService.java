@@ -27,11 +27,6 @@ public class MarcaService {
 		return marcaRepository.findAllByOrderByNombreAsc().stream().map(MarcaDTO::de).toList();
 	}
 
-	@Transactional(readOnly = true)
-	public MarcaDTO obtener(Integer idMarca) {
-		return MarcaDTO.de(buscar(idMarca));
-	}
-
 	@Transactional
 	public MarcaDTO crear(MarcaEntradaDTO entrada) {
 		String nombre = entrada.nombreMarca().trim();

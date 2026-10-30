@@ -24,11 +24,6 @@ import tools.jackson.databind.ObjectMapper;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	private static final String[] PUBLICAS = {
-			"/api/estado",
-			"/", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-	};
-
 	@Bean
 	public SecurityFilterChain filtros(HttpSecurity http, ObjectMapper json, JwtService jwtService) throws Exception {
 		http
@@ -41,7 +36,6 @@ public class SecurityConfig {
 				.authorizeHttpRequests(a -> a
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-						.requestMatchers(PUBLICAS).permitAll()
 						.anyRequest().authenticated())
 				.exceptionHandling(e -> e
 						.authenticationEntryPoint((req, res, ex) -> escribir(res, json,

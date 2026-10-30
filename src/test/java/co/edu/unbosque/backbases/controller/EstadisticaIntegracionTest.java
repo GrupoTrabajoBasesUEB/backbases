@@ -3,12 +3,12 @@ package co.edu.unbosque.backbases.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -64,6 +64,10 @@ class EstadisticaIntegracionTest {
 		return valores.stream().map(n -> new BigDecimal(n.toString())).reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
+	private int filas(String tabla) {
+		return jdbc.queryForObject("SELECT COUNT(*) FROM " + tabla, Integer.class);
+	}
+
 	private BigDecimal totalVendido() {
 		return jdbc.queryForObject("SELECT SUM(MONTO_TOTAL) FROM V_VENTA_TOTAL", BigDecimal.class);
 	}
@@ -85,6 +89,7 @@ class EstadisticaIntegracionTest {
 
 	@Test
 	void ventasPorDiaIncluyeLosDiasSinVentas() throws Exception {
+		desde = desde.minusDays(2);
 		String json = json(consulta("ventas-por-dia"));
 
 		List<String> fechas = JsonPath.read(json, "$[*].fecha");
@@ -97,27 +102,22 @@ class EstadisticaIntegracionTest {
 
 	@Test
 	void lasAgrupacionesSumanElTotal() throws Exception {
-		String sucursales = json(consulta("por-sucursal"));
+		String sucursales = json(consulta("sucursales"));
 		String metodos = json(consulta("por-metodo-pago"));
-		String vendedores = json(consulta("por-vendedor"));
+		String vendedores = json(consulta("comisiones"));
 
-		assertThat(JsonPath.<List<?>>read(sucursales, "$")).hasSize(3);
-		assertThat(JsonPath.<List<?>>read(metodos, "$")).hasSize(4);
-		assertThat(JsonPath.<List<?>>read(vendedores, "$")).hasSize(4);
+		assertThat(JsonPath.<List<?>>read(sucursales, "$")).hasSize(filas("SUCURSAL"));
+		assertThat(JsonPath.<List<?>>read(metodos, "$")).hasSize(filas("METODO_PAGO"));
+		assertThat(JsonPath.<List<?>>read(vendedores, "$")).hasSize(filas("VENDEDOR"));
 		assertThat(suma(sucursales, "$[*].total")).isEqualByComparingTo(totalVendido());
 		assertThat(suma(metodos, "$[*].total")).isEqualByComparingTo(totalVendido());
 		assertThat(suma(vendedores, "$[*].total")).isEqualByComparingTo(totalVendido());
 	}
 
 	@Test
-	void productosMasVendidosYRendimiento() throws Exception {
-		String top = json(consulta("productos-mas-vendidos").param("limite", "3"));
-		List<Number> totales = JsonPath.read(top, "$[*].total");
-		assertThat(totales).hasSize(3);
-		assertThat(new BigDecimal(totales.get(0).toString())).isGreaterThanOrEqualTo(new BigDecimal(totales.get(2).toString()));
-
+	void elRendimientoIncluyeTodosLosProductos() throws Exception {
 		String rendimiento = json(consulta("rendimiento-productos"));
-		assertThat(JsonPath.<List<?>>read(rendimiento, "$")).hasSize(16);
+		assertThat(JsonPath.<List<?>>read(rendimiento, "$")).hasSize(filas("PRODUCTO"));
 		assertThat(suma(rendimiento, "$[*].total")).isEqualByComparingTo(totalVendido());
 	}
 
@@ -145,18 +145,13 @@ class EstadisticaIntegracionTest {
 
 		String comisiones = json(consulta("comisiones"));
 		List<Number> totales = JsonPath.read(comisiones, "$[*].total");
+		List<Number> tasas = JsonPath.read(comisiones, "$[*].tasa");
 		List<Number> valores = JsonPath.read(comisiones, "$[*].comision");
+		assertThat(totales).hasSize(filas("VENDEDOR"));
 		for (int i = 0; i < totales.size(); i++) {
 			assertThat(new BigDecimal(valores.get(i).toString()))
-					.isEqualByComparingTo(new BigDecimal(totales.get(i).toString()).multiply(new BigDecimal("0.1")));
+					.isEqualByComparingTo(new BigDecimal(totales.get(i).toString()).multiply(new BigDecimal(tasas.get(i).toString())).setScale(2, RoundingMode.HALF_UP));
 		}
-	}
-
-	@Test
-	void stockBajoRespetaElUmbral() throws Exception {
-		mvc.perform(get("/api/estadisticas/stock-bajo").param("umbral", "3"))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[*].cantidadDisponible").value(everyItem(lessThanOrEqualTo(3))));
 	}
 
 	@Test
@@ -173,9 +168,9 @@ class EstadisticaIntegracionTest {
 	@Test
 	@ComoEmpleado(id = 6, rol = Rol.VENDEDOR, idSucursal = 3)
 	void elVendedorSoloVeSuSucursalYSuComision() throws Exception {
-		mvc.perform(consulta("por-sucursal"))
+		mvc.perform(consulta("sucursales"))
 				.andExpect(jsonPath("$.length()").value(1))
-				.andExpect(jsonPath("$[0].nombre").value("Sede Laureles"));
+				.andExpect(jsonPath("$[0].nombreSucursal").value("Sede Laureles"));
 		mvc.perform(consulta("resumen").param("idSucursal", "1")).andExpect(status().isForbidden());
 		mvc.perform(consulta("comisiones"))
 				.andExpect(jsonPath("$[*].idEmpleado").value(everyItem(is(6))));

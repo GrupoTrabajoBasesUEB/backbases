@@ -12,14 +12,10 @@ import co.edu.unbosque.backbases.dto.LoginDTO;
 import co.edu.unbosque.backbases.dto.SesionDTO;
 import co.edu.unbosque.backbases.security.UsuarioAutenticado;
 import co.edu.unbosque.backbases.service.AuthService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Autenticación")
 public class AuthController {
 
 	private final AuthService authService;
@@ -29,14 +25,11 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	@SecurityRequirements
-	@Operation(summary = "Iniciar sesión con correo y contraseña")
 	public SesionDTO login(@Valid @RequestBody LoginDTO login) {
 		return authService.iniciarSesion(login);
 	}
 
 	@GetMapping("/yo")
-	@Operation(summary = "Datos del empleado que tiene la sesión")
 	public EmpleadoDTO yo(@AuthenticationPrincipal UsuarioAutenticado usuario) {
 		return authService.perfil(usuario);
 	}

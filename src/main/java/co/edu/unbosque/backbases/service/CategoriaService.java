@@ -1,6 +1,5 @@
 package co.edu.unbosque.backbases.service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.edu.unbosque.backbases.dto.CategoriaArbolDTO;
 import co.edu.unbosque.backbases.dto.CategoriaDTO;
 import co.edu.unbosque.backbases.dto.CategoriaEntradaDTO;
 import co.edu.unbosque.backbases.entity.Categoria;
@@ -31,22 +29,6 @@ public class CategoriaService {
 	public List<CategoriaDTO> listar(boolean soloPrincipales) {
 		List<Categoria> categorias = soloPrincipales ? categoriaRepository.listarPrincipales() : categoriaRepository.listarConPrincipal();
 		return categorias.stream().map(CategoriaDTO::de).toList();
-	}
-
-	@Transactional(readOnly = true)
-	public List<CategoriaArbolDTO> arbol() {
-		List<CategoriaDTO> todas = categoriaRepository.listarConPrincipal().stream().map(CategoriaDTO::de).toList();
-		Map<Integer, List<CategoriaDTO>> hijas = new LinkedHashMap<>();
-		todas.stream().filter(c -> c.idCategoriaPrincipal() != null)
-				.forEach(c -> hijas.computeIfAbsent(c.idCategoriaPrincipal(), k -> new ArrayList<>()).add(c));
-		return todas.stream().filter(c -> c.idCategoriaPrincipal() == null)
-				.map(c -> new CategoriaArbolDTO(c.idCategoria(), c.nombre(), c.descripcion(), hijas.getOrDefault(c.idCategoria(), List.of())))
-				.toList();
-	}
-
-	@Transactional(readOnly = true)
-	public CategoriaDTO obtener(Integer idCategoria) {
-		return CategoriaDTO.de(buscar(idCategoria));
 	}
 
 	@Transactional

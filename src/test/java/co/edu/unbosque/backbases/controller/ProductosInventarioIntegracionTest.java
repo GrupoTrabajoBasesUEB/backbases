@@ -1,5 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -50,8 +52,8 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(jsonPath("$.codigo").value("HM-0001"))
 				.andExpect(jsonPath("$.stock").value(suma))
 				.andExpect(jsonPath("$.nombreMarca").value("Stanley"));
-		mvc.perform(get("/api/productos/1/inventario"))
-				.andExpect(jsonPath("$.length()").value(3))
+		mvc.perform(get("/api/inventario").param("q", "HM-0001"))
+				.andExpect(jsonPath("$.length()").value(10))
 				.andExpect(jsonPath("$[*].nombreSucursal").value(hasItem("Sede Laureles")));
 	}
 
@@ -61,7 +63,7 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.length()").value(5));
 		mvc.perform(get("/api/productos").param("q", "taladro"))
-				.andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$.length()").value(3))
 				.andExpect(jsonPath("$[*].nombreCategoria").value(everyItem(is("Taladros"))));
 	}
 
@@ -79,8 +81,8 @@ class ProductosInventarioIntegracionTest {
 				{"codigo":"hm-0099","nombreProducto":"Otro","costoCompra":1,"precioBaseVenta":2,"idCategoria":2,"idMarca":2}
 				"""))
 				.andExpect(status().isConflict());
-		mvc.perform(delete("/api/productos/" + id)).andExpect(status().isNoContent());
-		mvc.perform(delete("/api/productos/1")).andExpect(status().isConflict());
+		mvc.perform(delete("/api/productos/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/productos/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 	}
 
 	@Test
@@ -103,7 +105,7 @@ class ProductosInventarioIntegracionTest {
 
 	@Test
 	void ajustarYRetirarDelInventario() throws Exception {
-		mvc.perform(delete("/api/inventario/1/1")).andExpect(status().isBadRequest());
+		mvc.perform(delete("/api/inventario/1/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isBadRequest());
 		mvc.perform(put("/api/inventario/1/1").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"cantidadDisponible\":0,\"ubicacionBodega\":\"Pasillo 1, estante A\"}"))
 				.andExpect(status().isOk());
@@ -120,7 +122,7 @@ class ProductosInventarioIntegracionTest {
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.mensaje").value("Ese administrador ya dirige la sucursal \"Sede Centro\"."));
 		mvc.perform(get("/api/sucursales"))
-				.andExpect(jsonPath("$.length()").value(3))
+				.andExpect(jsonPath("$.length()").value(10))
 				.andExpect(jsonPath("$[?(@.nombreSucursal == 'Sede Laureles')].nombreAdministrador").value(hasItem("Sofía Restrepo")));
 	}
 
@@ -130,7 +132,7 @@ class ProductosInventarioIntegracionTest {
 		mvc.perform(get("/api/sucursales/2/inventario")).andExpect(status().isOk());
 		mvc.perform(get("/api/inventario").param("q", "HM-0001"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(3));
+				.andExpect(jsonPath("$.length()").value(10));
 		mvc.perform(put("/api/inventario/1/1").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"cantidadDisponible\":1,\"ubicacionBodega\":\"x\"}"))
 				.andExpect(status().isForbidden());

@@ -1,11 +1,9 @@
 package co.edu.unbosque.backbases.security;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,8 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String cabecera = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (cabecera != null && cabecera.startsWith(PREFIJO)) {
 			jwtService.leer(cabecera.substring(PREFIJO.length()).trim()).ifPresent(usuario -> {
-				var autenticacion = new UsernamePasswordAuthenticationToken(usuario, null,
-						List.of(new SimpleGrantedAuthority("ROLE_" + usuario.rol().name())));
+				var autenticacion = new UsernamePasswordAuthenticationToken(usuario, null, usuario.permisos());
 				SecurityContextHolder.getContext().setAuthentication(autenticacion);
 			});
 		}

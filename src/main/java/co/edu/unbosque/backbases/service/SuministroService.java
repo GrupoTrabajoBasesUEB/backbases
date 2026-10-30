@@ -49,11 +49,6 @@ public class SuministroService {
 				.toList();
 	}
 
-	@Transactional(readOnly = true)
-	public SuministroDTO obtener(String nit, Integer idProducto, Integer idSucursal) {
-		return conResumen(buscarSuministro(new SuministroId(nit, idProducto, idSucursal)));
-	}
-
 	@Transactional
 	public SuministroDTO crear(SuministroEntradaDTO entrada) {
 		Proveedor proveedor = proveedorRepository.findById(entrada.nit().trim())

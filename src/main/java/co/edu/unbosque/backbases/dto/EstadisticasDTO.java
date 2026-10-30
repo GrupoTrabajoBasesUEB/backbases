@@ -39,8 +39,4 @@ public final class EstadisticasDTO {
 	public record Comision(Integer idEmpleado, String nombre, List<String> sucursales, long cantidad, BigDecimal total,
 			BigDecimal ticketPromedio, BigDecimal tasa, BigDecimal comision) {
 	}
-
-	public record StockBajo(Integer idSucursal, String nombreSucursal, Integer idProducto, String codigo, String nombreProducto,
-			int cantidadDisponible, String ubicacionBodega) {
-	}
 }

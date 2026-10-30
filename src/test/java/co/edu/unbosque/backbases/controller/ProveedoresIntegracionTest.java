@@ -1,5 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
@@ -57,11 +59,11 @@ class ProveedoresIntegracionTest {
 	void proveedoresConSusTelefonosYCorreos() throws Exception {
 		mvc.perform(get("/api/proveedores"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(4));
+				.andExpect(jsonPath("$.length()").value(10));
 		mvc.perform(get("/api/proveedores/900215334-1"))
 				.andExpect(jsonPath("$.telefonos.length()").value(2))
 				.andExpect(jsonPath("$.correos").value(containsInAnyOrder("pedidos@ferreandina.demo", "cartera@ferreandina.demo")));
-		mvc.perform(get("/api/proveedores").param("q", "caribe"))
+		mvc.perform(get("/api/proveedores").param("q", "herramientas del caribe"))
 				.andExpect(jsonPath("$.length()").value(1))
 				.andExpect(jsonPath("$[0].nit").value("830104552-8"));
 	}
@@ -77,8 +79,8 @@ class ProveedoresIntegracionTest {
 				.content(NUEVO.replace("Cali", "Palmira")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.direccionProveedor").value("Calle 5 # 38-20, Palmira"));
-		mvc.perform(delete("/api/proveedores/901777666-4")).andExpect(status().isNoContent());
-		mvc.perform(delete("/api/proveedores/900215334-1")).andExpect(status().isConflict());
+		mvc.perform(delete("/api/proveedores/901777666-4").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/proveedores/900215334-1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 	}
 
 	@Test
@@ -96,11 +98,13 @@ class ProveedoresIntegracionTest {
 				""");
 		String ruta = "/api/suministros/" + evaluado.get("NIT") + "/" + evaluado.get("ID_PRODUCTO") + "/" + evaluado.get("ID_SUCURSAL");
 
-		mvc.perform(get(ruta))
+		mvc.perform(get("/api/suministros").param("nit", evaluado.get("NIT").toString())
+				.param("idProducto", evaluado.get("ID_PRODUCTO").toString()).param("idSucursal", evaluado.get("ID_SUCURSAL").toString()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.cantidadEvaluaciones").value(((Number) evaluado.get("N")).intValue()))
-				.andExpect(jsonPath("$.promedioCalificacion").isNumber());
-		mvc.perform(delete(ruta)).andExpect(status().isConflict());
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].cantidadEvaluaciones").value(((Number) evaluado.get("N")).intValue()))
+				.andExpect(jsonPath("$[0].promedioCalificacion").isNumber());
+		mvc.perform(delete(ruta).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 		mvc.perform(get("/api/suministros").param("idSucursal", "3"))
 				.andExpect(jsonPath("$[*].nombreSucursal").value(everyItem(is("Sede Laureles"))));
 	}
@@ -120,7 +124,7 @@ class ProveedoresIntegracionTest {
 				.content("{\"precioSuministro\":49500,\"tiempoEntregaDias\":4}"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.tiempoEntregaDias").value(4));
-		mvc.perform(delete("/api/suministros/901777666-4/12/3")).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/suministros/901777666-4/12/3").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
 	}
 
 	@Test

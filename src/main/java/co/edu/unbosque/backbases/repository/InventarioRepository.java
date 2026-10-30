@@ -28,9 +28,6 @@ public interface InventarioRepository extends JpaRepository<Inventario, Inventar
 			""")
 	List<Inventario> todo(@Param("texto") String texto);
 
-	@Query("select i from Inventario i join fetch i.producto p join fetch i.sucursal s where p.idProducto = :idProducto order by s.nombre")
-	List<Inventario> deProducto(@Param("idProducto") Integer idProducto);
-
 	@Query("select i from Inventario i join fetch i.producto join fetch i.sucursal where i.id = :id")
 	Optional<Inventario> buscar(@Param("id") InventarioId id);
 

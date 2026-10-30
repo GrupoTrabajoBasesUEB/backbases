@@ -21,14 +21,11 @@ import co.edu.unbosque.backbases.dto.EvaluacionDTO;
 import co.edu.unbosque.backbases.dto.EvaluacionEntradaDTO;
 import co.edu.unbosque.backbases.security.UsuarioAutenticado;
 import co.edu.unbosque.backbases.service.EvaluacionService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/evaluaciones")
-@PreAuthorize("hasRole('ADMINISTRADOR')")
-@Tag(name = "Evaluaciones de calidad")
+@PreAuthorize("hasAuthority('NIVEL_2')")
 public class EvaluacionController {
 
 	private final EvaluacionService evaluacionService;
@@ -38,7 +35,6 @@ public class EvaluacionController {
 	}
 
 	@GetMapping
-	@Operation(summary = "Historial de evaluaciones por suministro, evaluador o rango de fechas")
 	public List<EvaluacionDTO> buscar(@RequestParam(required = false) String nit, @RequestParam(required = false) Integer idProducto,
 			@RequestParam(required = false) Integer idSucursal, @RequestParam(required = false) Integer idEmpleado,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
@@ -46,22 +42,14 @@ public class EvaluacionController {
 		return evaluacionService.buscar(nit, idProducto, idSucursal, idEmpleado, desde, hasta);
 	}
 
-	@GetMapping("/{idEvaluacion}")
-	@Operation(summary = "Obtener una evaluación")
-	public EvaluacionDTO obtener(@PathVariable Integer idEvaluacion) {
-		return evaluacionService.obtener(idEvaluacion);
-	}
-
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@Operation(summary = "Evaluar un suministro; el evaluador es el administrador con la sesión")
 	public EvaluacionDTO registrar(@Valid @RequestBody EvaluacionEntradaDTO entrada, @AuthenticationPrincipal UsuarioAutenticado usuario) {
 		return evaluacionService.registrar(entrada, usuario);
 	}
 
 	@DeleteMapping("/{idEvaluacion}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@Operation(summary = "Eliminar una evaluación")
 	public void eliminar(@PathVariable Integer idEvaluacion) {
 		evaluacionService.eliminar(idEvaluacion);
 	}

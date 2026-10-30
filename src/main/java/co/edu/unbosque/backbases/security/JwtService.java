@@ -22,6 +22,7 @@ public class JwtService {
 	private static final String CLAIM_CORREO = "correo";
 	private static final String CLAIM_ROL = "rol";
 	private static final String CLAIM_SUCURSAL = "idSucursal";
+	private static final String CLAIM_NIVEL = "nivelAcceso";
 
 	private final SecretKey clave;
 	private final long vigenciaMs;
@@ -42,15 +43,22 @@ public class JwtService {
 		if (usuario.idSucursal() != null) {
 			token.claim(CLAIM_SUCURSAL, usuario.idSucursal());
 		}
+		if (usuario.nivelAcceso() != null) {
+			token.claim(CLAIM_NIVEL, usuario.nivelAcceso());
+		}
 		return token.signWith(clave).compact();
 	}
 
 	public Optional<UsuarioAutenticado> leer(String token) {
 		try {
 			Claims datos = Jwts.parser().verifyWith(clave).build().parseSignedClaims(token).getPayload();
-			Integer idSucursal = datos.get(CLAIM_SUCURSAL, Integer.class);
+			Rol rol = Rol.valueOf(datos.get(CLAIM_ROL, String.class));
+			Integer nivelAcceso = datos.get(CLAIM_NIVEL, Integer.class);
+			if (rol == Rol.ADMINISTRADOR && nivelAcceso == null) {
+				return Optional.empty();
+			}
 			return Optional.of(new UsuarioAutenticado(Integer.valueOf(datos.getSubject()), datos.get(CLAIM_CORREO, String.class),
-					Rol.valueOf(datos.get(CLAIM_ROL, String.class)), idSucursal));
+					rol, datos.get(CLAIM_SUCURSAL, Integer.class), nivelAcceso));
 		} catch (JwtException | IllegalArgumentException e) {
 			return Optional.empty();
 		}

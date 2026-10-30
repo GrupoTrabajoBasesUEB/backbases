@@ -20,13 +20,10 @@ import co.edu.unbosque.backbases.dto.SucursalDTO;
 import co.edu.unbosque.backbases.dto.SucursalEntradaDTO;
 import co.edu.unbosque.backbases.service.InventarioService;
 import co.edu.unbosque.backbases.service.SucursalService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/sucursales")
-@Tag(name = "Sucursales")
 public class SucursalController {
 
 	private final SucursalService sucursalService;
@@ -38,42 +35,31 @@ public class SucursalController {
 	}
 
 	@GetMapping
-	@Operation(summary = "Listar sucursales con su encargado")
 	public List<SucursalDTO> listar() {
 		return sucursalService.listar();
 	}
 
-	@GetMapping("/{idSucursal}")
-	@Operation(summary = "Obtener una sucursal")
-	public SucursalDTO obtener(@PathVariable Integer idSucursal) {
-		return sucursalService.obtener(idSucursal);
-	}
-
 	@GetMapping("/{idSucursal}/inventario")
-	@Operation(summary = "Inventario de una sucursal")
 	public List<InventarioDTO> inventario(@PathVariable Integer idSucursal, @RequestParam(required = false) String q) {
 		return inventarioService.deSucursal(idSucursal, q);
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
-	@Operation(summary = "Crear una sucursal con su administrador encargado")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	public SucursalDTO crear(@Valid @RequestBody SucursalEntradaDTO entrada) {
 		return sucursalService.crear(entrada);
 	}
 
 	@PutMapping("/{idSucursal}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
-	@Operation(summary = "Actualizar una sucursal o cambiar su encargado")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	public SucursalDTO actualizar(@PathVariable Integer idSucursal, @Valid @RequestBody SucursalEntradaDTO entrada) {
 		return sucursalService.actualizar(idSucursal, entrada);
 	}
 
 	@DeleteMapping("/{idSucursal}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
-	@Operation(summary = "Eliminar una sucursal sin ventas, inventario, suministros ni vendedores")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	public void eliminar(@PathVariable Integer idSucursal) {
 		sucursalService.eliminar(idSucursal);
 	}

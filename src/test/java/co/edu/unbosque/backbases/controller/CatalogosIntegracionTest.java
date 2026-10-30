@@ -1,7 +1,10 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,14 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import co.edu.unbosque.backbases.security.ComoEmpleado;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@WithMockUser(roles = "ADMINISTRADOR")
+@ComoEmpleado(id = 1)
 @EnabledIf("co.edu.unbosque.backbases.BaseDeDatos#disponible")
 class CatalogosIntegracionTest {
 
@@ -50,38 +54,37 @@ class CatalogosIntegracionTest {
 	@Test
 	void creaActualizaYEliminaUnaMarcaNueva() throws Exception {
 		String respuesta = mvc.perform(post("/api/marcas").contentType(MediaType.APPLICATION_JSON)
-				.content("{\"nombreMarca\":\"Makita\",\"paisOrigen\":\"Japón\"}"))
+				.content("{\"nombreMarca\":\"Milwaukee\",\"paisOrigen\":\"Estados Unidos\"}"))
 				.andExpect(status().isCreated())
 				.andReturn().getResponse().getContentAsString();
 		String id = respuesta.replaceAll(".*\"idMarca\":(\\d+).*", "$1");
 
 		mvc.perform(put("/api/marcas/" + id).contentType(MediaType.APPLICATION_JSON)
-				.content("{\"nombreMarca\":\"Makita\",\"paisOrigen\":\"Japón (Anjo)\"}"))
+				.content("{\"nombreMarca\":\"Milwaukee\",\"paisOrigen\":\"Estados Unidos (Wisconsin)\"}"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.paisOrigen").value("Japón (Anjo)"));
-		mvc.perform(delete("/api/marcas/" + id)).andExpect(status().isNoContent());
-		mvc.perform(get("/api/marcas/" + id)).andExpect(status().isNotFound());
+				.andExpect(jsonPath("$.paisOrigen").value("Estados Unidos (Wisconsin)"));
+		mvc.perform(delete("/api/marcas/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
+		mvc.perform(get("/api/marcas")).andExpect(jsonPath("$[?(@.idMarca == " + id + ")]").isEmpty());
 	}
 
 	@Test
 	void noEliminaLoQueEstaEnUso() throws Exception {
-		mvc.perform(delete("/api/marcas/1"))
+		mvc.perform(delete("/api/marcas/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.mensaje").value("No se puede eliminar la marca: la usan 3 productos."));
-		mvc.perform(delete("/api/categorias/1"))
+		mvc.perform(delete("/api/categorias/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.mensaje").value("No se puede eliminar la categoría: la usan 3 subcategorías."));
-		mvc.perform(delete("/api/metodos-pago/1")).andExpect(status().isConflict());
+		mvc.perform(delete("/api/metodos-pago/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
 	}
 
 	@Test
-	void elArbolTieneLasSeisPrincipalesConSusSubcategorias() throws Exception {
-		mvc.perform(get("/api/categorias/arbol"))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(6))
-				.andExpect(jsonPath("$[?(@.nombre == 'Herramientas manuales')].subcategorias.length()").value(3));
+	void hayDosNivelesDeCategorias() throws Exception {
 		mvc.perform(get("/api/categorias").param("soloPrincipales", "true"))
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.length()").value(6));
+		mvc.perform(get("/api/categorias"))
+				.andExpect(jsonPath("$[?(@.idCategoriaPrincipal == 1)]", hasSize(3)));
 	}
 
 	@Test

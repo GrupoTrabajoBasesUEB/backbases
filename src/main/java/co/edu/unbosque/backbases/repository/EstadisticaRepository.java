@@ -16,7 +16,6 @@ import co.edu.unbosque.backbases.dto.EstadisticasDTO.Agrupado;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.Comision;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.ProductoVendido;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.Resumen;
-import co.edu.unbosque.backbases.dto.EstadisticasDTO.StockBajo;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.SucursalDetalle;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.UnidadesInventario;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.VentasDia;
@@ -82,37 +81,6 @@ public class EstadisticaRepository {
 				""", filtro.parametros(), (rs, i) -> new VentasDia(rs.getObject("FECHA", LocalDate.class), rs.getBigDecimal("TOTAL"), rs.getLong("CANTIDAD")));
 	}
 
-	public List<Agrupado> porSucursal(Filtro filtro) {
-		return jdbc.query("""
-				SELECT s.ID_SUCURSAL AS ID, s.NOMBRE_SUCURSAL AS NOMBRE, COALESCE(SUM(t.MONTO_TOTAL), 0) AS TOTAL, COUNT(v.ID_VENTA) AS CANTIDAD
-				FROM SUCURSAL s
-				LEFT JOIN VENTA v ON v.ID_SUCURSAL = s.ID_SUCURSAL
-				  AND v.FECHA BETWEEN :desde AND :hasta
-				  AND (:idEmpleado IS NULL OR v.ID_EMPLEADO = :idEmpleado)
-				LEFT JOIN V_VENTA_TOTAL t ON t.ID_VENTA = v.ID_VENTA
-				WHERE :idSucursal IS NULL OR s.ID_SUCURSAL = :idSucursal
-				GROUP BY s.ID_SUCURSAL, s.NOMBRE_SUCURSAL
-				ORDER BY TOTAL DESC, NOMBRE
-				""", filtro.parametros(), EstadisticaRepository::agrupado);
-	}
-
-	public List<Agrupado> porVendedor(Filtro filtro) {
-		return jdbc.query("""
-				SELECT ve.ID_EMPLEADO AS ID, CONCAT(e.NOMBRE, ' ', e.APELLIDO) AS NOMBRE,
-				       COALESCE(SUM(t.MONTO_TOTAL), 0) AS TOTAL, COUNT(v.ID_VENTA) AS CANTIDAD
-				FROM VENDEDOR ve
-				JOIN EMPLEADO e ON e.ID_EMPLEADO = ve.ID_EMPLEADO
-				LEFT JOIN VENTA v ON v.ID_EMPLEADO = ve.ID_EMPLEADO
-				  AND v.FECHA BETWEEN :desde AND :hasta
-				  AND (:idSucursal IS NULL OR v.ID_SUCURSAL = :idSucursal)
-				LEFT JOIN V_VENTA_TOTAL t ON t.ID_VENTA = v.ID_VENTA
-				WHERE :idEmpleado IS NULL OR ve.ID_EMPLEADO = :idEmpleado
-				GROUP BY ve.ID_EMPLEADO, e.NOMBRE, e.APELLIDO
-				HAVING :idSucursal IS NULL OR COUNT(v.ID_VENTA) > 0
-				ORDER BY TOTAL DESC, NOMBRE
-				""", filtro.parametros(), EstadisticaRepository::agrupado);
-	}
-
 	public List<Agrupado> porMetodoPago(Filtro filtro) {
 		return jdbc.query("""
 				SELECT m.ID_METODO_PAGO AS ID, m.TIPO AS NOMBRE, COALESCE(SUM(t.MONTO_TOTAL), 0) AS TOTAL, COUNT(v.ID_VENTA) AS CANTIDAD
@@ -125,22 +93,6 @@ public class EstadisticaRepository {
 				GROUP BY m.ID_METODO_PAGO, m.TIPO
 				ORDER BY TOTAL DESC, NOMBRE
 				""", filtro.parametros(), EstadisticaRepository::agrupado);
-	}
-
-	public List<ProductoVendido> productosMasVendidos(Filtro filtro, int limite) {
-		return jdbc.query("""
-				SELECT p.ID_PRODUCTO, p.CODIGO, p.NOMBRE_PRODUCTO,
-				       SUM(d.CANTIDAD) AS UNIDADES,
-				       SUM(d.CANTIDAD * d.PRECIO_UNITARIO) AS TOTAL,
-				       SUM(d.CANTIDAD * (d.PRECIO_UNITARIO - p.COSTO_COMPRA)) AS UTILIDAD
-				FROM DETALLE_VENTA d
-				JOIN VENTA v ON v.ID_VENTA = d.ID_VENTA
-				JOIN PRODUCTO p ON p.ID_PRODUCTO = d.ID_PRODUCTO
-				WHERE""" + " " + VENTAS_DEL_PERIODO + """
-				GROUP BY p.ID_PRODUCTO, p.CODIGO, p.NOMBRE_PRODUCTO
-				ORDER BY TOTAL DESC, p.NOMBRE_PRODUCTO
-				LIMIT :limite
-				""", filtro.parametros().addValue("limite", limite), EstadisticaRepository::productoVendido);
 	}
 
 	public List<ProductoVendido> rendimientoPorProducto(Filtro filtro) {
@@ -250,20 +202,6 @@ public class EstadisticaRepository {
 							sucursales == null ? List.of() : Arrays.asList(sucursales.split("\\|")), cantidad, total, promedio(total, cantidad),
 							tasa, total.multiply(tasa).setScale(2, RoundingMode.HALF_UP));
 				});
-	}
-
-	public List<StockBajo> stockBajo(Integer idSucursal, int umbral) {
-		return jdbc.query("""
-				SELECT s.ID_SUCURSAL, s.NOMBRE_SUCURSAL, p.ID_PRODUCTO, p.CODIGO, p.NOMBRE_PRODUCTO, i.CANTIDAD_DISPONIBLE, i.UBICACION_BODEGA
-				FROM INVENTARIO i
-				JOIN PRODUCTO p ON p.ID_PRODUCTO = i.ID_PRODUCTO
-				JOIN SUCURSAL s ON s.ID_SUCURSAL = i.ID_SUCURSAL
-				WHERE i.CANTIDAD_DISPONIBLE <= :umbral
-				  AND (:idSucursal IS NULL OR i.ID_SUCURSAL = :idSucursal)
-				ORDER BY i.CANTIDAD_DISPONIBLE, p.NOMBRE_PRODUCTO, s.NOMBRE_SUCURSAL
-				""", new MapSqlParameterSource().addValue("idSucursal", idSucursal).addValue("umbral", umbral),
-				(rs, i) -> new StockBajo(rs.getInt("ID_SUCURSAL"), rs.getString("NOMBRE_SUCURSAL"), rs.getInt("ID_PRODUCTO"),
-						rs.getString("CODIGO"), rs.getString("NOMBRE_PRODUCTO"), rs.getInt("CANTIDAD_DISPONIBLE"), rs.getString("UBICACION_BODEGA")));
 	}
 
 	private static Agrupado agrupado(ResultSet rs, int fila) throws SQLException {

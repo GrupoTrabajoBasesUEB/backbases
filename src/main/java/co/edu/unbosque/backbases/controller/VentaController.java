@@ -22,13 +22,10 @@ import co.edu.unbosque.backbases.dto.VentaDTO;
 import co.edu.unbosque.backbases.dto.VentaEntradaDTO;
 import co.edu.unbosque.backbases.security.UsuarioAutenticado;
 import co.edu.unbosque.backbases.service.VentaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/ventas")
-@Tag(name = "Ventas")
 public class VentaController {
 
 	private final VentaService ventaService;
@@ -40,13 +37,11 @@ public class VentaController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasRole('VENDEDOR')")
-	@Operation(summary = "Registrar una venta en la sucursal del vendedor; sin cliente se registra a consumidor final")
 	public VentaDTO registrar(@Valid @RequestBody VentaEntradaDTO entrada, @AuthenticationPrincipal UsuarioAutenticado usuario) {
 		return ventaService.registrar(entrada, usuario);
 	}
 
 	@GetMapping
-	@Operation(summary = "Buscar ventas por fechas, sucursal, vendedor, cliente, método de pago o factura, paginado")
 	public PaginaDTO<VentaDTO> buscar(
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
@@ -62,7 +57,6 @@ public class VentaController {
 	}
 
 	@GetMapping("/lineas")
-	@Operation(summary = "Líneas vendidas (DETALLE_VENTA unido con VENTA) que cumplen los filtros, sin paginar")
 	public List<LineaVendidaDTO> lineas(
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
@@ -75,7 +69,6 @@ public class VentaController {
 	}
 
 	@GetMapping("/{idVenta}")
-	@Operation(summary = "Factura con sus líneas y el total calculado por la vista V_VENTA_TOTAL")
 	public VentaDTO obtener(@PathVariable Integer idVenta, @AuthenticationPrincipal UsuarioAutenticado usuario) {
 		return ventaService.obtener(idVenta, usuario);
 	}

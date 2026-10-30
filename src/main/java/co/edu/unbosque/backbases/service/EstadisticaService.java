@@ -12,7 +12,6 @@ import co.edu.unbosque.backbases.dto.EstadisticasDTO.Agrupado;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.Comision;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.Comparativo;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.ProductoVendido;
-import co.edu.unbosque.backbases.dto.EstadisticasDTO.StockBajo;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.SucursalDetalle;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.UnidadesInventario;
 import co.edu.unbosque.backbases.dto.EstadisticasDTO.VentasDia;
@@ -64,20 +63,8 @@ public class EstadisticaService {
 		return estadisticaRepository.ventasPorDia(filtro);
 	}
 
-	public List<Agrupado> porSucursal(Filtro filtro) {
-		return estadisticaRepository.porSucursal(filtro);
-	}
-
-	public List<Agrupado> porVendedor(Filtro filtro) {
-		return estadisticaRepository.porVendedor(filtro);
-	}
-
 	public List<Agrupado> porMetodoPago(Filtro filtro) {
 		return estadisticaRepository.porMetodoPago(filtro);
-	}
-
-	public List<ProductoVendido> productosMasVendidos(Filtro filtro, int limite) {
-		return estadisticaRepository.productosMasVendidos(filtro, Math.clamp(limite, 1, 100));
 	}
 
 	public List<ProductoVendido> rendimientoPorProducto(Filtro filtro) {
@@ -110,14 +97,6 @@ public class EstadisticaService {
 			filtro = new Filtro(filtro.desde(), filtro.hasta(), filtro.idSucursal(), usuario.idEmpleado());
 		}
 		return estadisticaRepository.comisiones(filtro);
-	}
-
-	public List<StockBajo> stockBajo(Integer idSucursal, Integer umbral, UsuarioAutenticado usuario) {
-		int limite = umbral == null ? UMBRAL_STOCK_BAJO : umbral;
-		if (limite < 0) {
-			throw new ReglaNegocioException("El umbral de stock bajo no puede ser negativo.");
-		}
-		return estadisticaRepository.stockBajo(sucursalPermitida(idSucursal, usuario), limite);
 	}
 
 	private static Integer sucursalPermitida(Integer idSucursal, UsuarioAutenticado usuario) {

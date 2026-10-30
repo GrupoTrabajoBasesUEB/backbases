@@ -1,5 +1,7 @@
 package co.edu.unbosque.backbases.controller;
 
+import static co.edu.unbosque.backbases.security.ClaveSeguridadInterceptor.ENCABEZADO;
+import static co.edu.unbosque.backbases.security.ComoEmpleado.CLAVE_ADMINISTRADOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -57,16 +59,17 @@ class ClienteIntegracionTest {
 		mvc.perform(get("/api/clientes").param("q", "altos del rio"))
 				.andExpect(jsonPath("$[0].tipo").value("JURIDICO"));
 		mvc.perform(get("/api/clientes").param("tipo", "JURIDICO"))
-				.andExpect(jsonPath("$.length()").value(2));
+				.andExpect(jsonPath("$.length()").value(4));
 	}
 
 	@Test
 	void elConsumidorFinalEstaDisponibleYProtegido() throws Exception {
-		mvc.perform(get("/api/clientes/consumidor-final"))
+		mvc.perform(get("/api/clientes").param("q", "222222222222"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.consumidorFinal").value(true))
-				.andExpect(jsonPath("$.numeroDocumento").value("222222222222"));
-		mvc.perform(delete("/api/clientes/7")).andExpect(status().isBadRequest());
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].consumidorFinal").value(true))
+				.andExpect(jsonPath("$[0].idCliente").value(7));
+		mvc.perform(delete("/api/clientes/7").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -104,8 +107,8 @@ class ClienteIntegracionTest {
 	void eliminaSoloClientesSinVentas() throws Exception {
 		String id = crear(NATURAL);
 
-		mvc.perform(delete("/api/clientes/1")).andExpect(status().isConflict());
-		mvc.perform(delete("/api/clientes/" + id)).andExpect(status().isNoContent());
+		mvc.perform(delete("/api/clientes/1").header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isConflict());
+		mvc.perform(delete("/api/clientes/" + id).header(ENCABEZADO, CLAVE_ADMINISTRADOR)).andExpect(status().isNoContent());
 		mvc.perform(get("/api/clientes/" + id)).andExpect(status().isNotFound());
 	}
 

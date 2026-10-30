@@ -43,11 +43,6 @@ public class EvaluacionService {
 				.stream().map(EvaluacionDTO::de).toList();
 	}
 
-	@Transactional(readOnly = true)
-	public EvaluacionDTO obtener(Integer idEvaluacion) {
-		return EvaluacionDTO.de(buscarEvaluacion(idEvaluacion));
-	}
-
 	@Transactional
 	public EvaluacionDTO registrar(EvaluacionEntradaDTO entrada, UsuarioAutenticado usuario) {
 		Administrador evaluador = administradorRepository.findById(usuario.idEmpleado())

@@ -15,17 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import co.edu.unbosque.backbases.dto.CategoriaArbolDTO;
 import co.edu.unbosque.backbases.dto.CategoriaDTO;
 import co.edu.unbosque.backbases.dto.CategoriaEntradaDTO;
 import co.edu.unbosque.backbases.service.CategoriaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/categorias")
-@Tag(name = "Categorías")
 public class CategoriaController {
 
 	private final CategoriaService categoriaService;
@@ -35,42 +31,26 @@ public class CategoriaController {
 	}
 
 	@GetMapping
-	@Operation(summary = "Listar categorías, o solo las principales")
 	public List<CategoriaDTO> listar(@RequestParam(defaultValue = "false") boolean soloPrincipales) {
 		return categoriaService.listar(soloPrincipales);
 	}
 
-	@GetMapping("/arbol")
-	@Operation(summary = "Categorías principales con sus subcategorías")
-	public List<CategoriaArbolDTO> arbol() {
-		return categoriaService.arbol();
-	}
-
-	@GetMapping("/{idCategoria}")
-	@Operation(summary = "Obtener una categoría")
-	public CategoriaDTO obtener(@PathVariable Integer idCategoria) {
-		return categoriaService.obtener(idCategoria);
-	}
-
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
-	@Operation(summary = "Crear una categoría o subcategoría")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	public CategoriaDTO crear(@Valid @RequestBody CategoriaEntradaDTO entrada) {
 		return categoriaService.crear(entrada);
 	}
 
 	@PutMapping("/{idCategoria}")
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
-	@Operation(summary = "Actualizar una categoría")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	public CategoriaDTO actualizar(@PathVariable Integer idCategoria, @Valid @RequestBody CategoriaEntradaDTO entrada) {
 		return categoriaService.actualizar(idCategoria, entrada);
 	}
 
 	@DeleteMapping("/{idCategoria}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasRole('ADMINISTRADOR')")
-	@Operation(summary = "Eliminar una categoría sin subcategorías ni productos")
+	@PreAuthorize("hasAuthority('NIVEL_3')")
 	public void eliminar(@PathVariable Integer idCategoria) {
 		categoriaService.eliminar(idCategoria);
 	}
