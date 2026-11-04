@@ -88,19 +88,17 @@ class ClienteIntegracionTest {
 	}
 
 	@Test
-	void cambiaDeNaturalAJuridicoSinDejarRastroDelTipoAnterior() throws Exception {
+	void elTipoDeClienteNoCambia() throws Exception {
 		String id = crear(NATURAL);
 
 		mvc.perform(put("/api/clientes/" + id).contentType(MediaType.APPLICATION_JSON).content("""
 				{"tipo":"JURIDICO","numeroDocumento":"901999888-1","telefonos":["601 222 3344"],"correos":[],"razonSocial":"Prieto y Asociados S.A.S."}
 				"""))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.tipo").value("JURIDICO"))
-				.andExpect(jsonPath("$.nombre").doesNotExist())
-				.andExpect(jsonPath("$.razonSocial").value("Prieto y Asociados S.A.S."))
-				.andExpect(jsonPath("$.correos.length()").value(0));
-		Integer naturales = jdbc.queryForObject("SELECT COUNT(*) FROM CLIENTE_NATURAL WHERE ID_CLIENTE = ?", Integer.class, Integer.valueOf(id));
-		assertThat(naturales).isZero();
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.codigo").value("REGLA_NEGOCIO"))
+				.andExpect(jsonPath("$.mensaje").value("El tipo de un cliente no se puede cambiar."));
+		Integer juridicos = jdbc.queryForObject("SELECT COUNT(*) FROM CLIENTE_JURIDICO WHERE ID_CLIENTE = ?", Integer.class, Integer.valueOf(id));
+		assertThat(juridicos).isZero();
 	}
 
 	@Test

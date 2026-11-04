@@ -73,17 +73,14 @@ public class ClienteService {
 	public ClienteDTO actualizar(Integer idCliente, ClienteEntradaDTO entrada) {
 		Cliente cliente = buscarCliente(idCliente);
 		protegerConsumidorFinal(cliente);
+		TipoCliente tipoActual = naturalRepository.existsById(idCliente) ? TipoCliente.NATURAL : TipoCliente.JURIDICO;
+		if (entrada.tipo() != tipoActual) {
+			throw new ReglaNegocioException("El tipo de un cliente no se puede cambiar.");
+		}
 		String documento = validarDocumento(entrada, idCliente);
 		validarDatosDelTipo(entrada);
 		cliente.setNumeroDocumento(documento);
 		copiarContacto(entrada, cliente);
-		if (entrada.tipo() == TipoCliente.NATURAL) {
-			juridicoRepository.findById(idCliente).ifPresent(juridicoRepository::delete);
-		} else {
-			naturalRepository.findById(idCliente).ifPresent(naturalRepository::delete);
-		}
-		juridicoRepository.flush();
-		naturalRepository.flush();
 		return guardarSubtipo(cliente, entrada);
 	}
 

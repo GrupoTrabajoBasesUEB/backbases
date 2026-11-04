@@ -33,4 +33,3 @@ bin/
 .settings/
 .classpath
 .project
-*.sql
