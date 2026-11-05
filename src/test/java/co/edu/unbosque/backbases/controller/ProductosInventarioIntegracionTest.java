@@ -59,9 +59,14 @@ class ProductosInventarioIntegracionTest {
 
 	@Test
 	void buscarPorCategoriaPrincipalIncluyeSusSubcategorias() throws Exception {
+		Integer esperados = jdbc.queryForObject("""
+				SELECT COUNT(*) FROM PRODUCTO p JOIN CATEGORIA c ON c.ID_CATEGORIA = p.ID_CATEGORIA
+				WHERE c.ID_CATEGORIA = 1 OR c.ID_CATEGORIA_PRINCIPAL = 1
+				""", Integer.class);
+
 		mvc.perform(get("/api/productos").param("idCategoria", "1"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(5));
+				.andExpect(jsonPath("$.length()").value(esperados));
 		mvc.perform(get("/api/productos").param("q", "taladro"))
 				.andExpect(jsonPath("$.length()").value(3))
 				.andExpect(jsonPath("$[*].nombreCategoria").value(everyItem(is("Taladros"))));
