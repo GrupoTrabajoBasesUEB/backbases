@@ -57,9 +57,11 @@ class ProveedoresIntegracionTest {
 
 	@Test
 	void proveedoresConSusTelefonosYCorreos() throws Exception {
+		Integer proveedores = jdbc.queryForObject("SELECT COUNT(*) FROM PROVEEDOR", Integer.class);
+
 		mvc.perform(get("/api/proveedores"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(10));
+				.andExpect(jsonPath("$.length()").value(proveedores));
 		mvc.perform(get("/api/proveedores/900215334-1"))
 				.andExpect(jsonPath("$.telefonos.length()").value(2))
 				.andExpect(jsonPath("$.correos").value(containsInAnyOrder("pedidos@ferreandina.demo", "cartera@ferreandina.demo")));
