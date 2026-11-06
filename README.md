@@ -66,19 +66,21 @@ Toda eliminación de un administrador pide, además, su clave de seguridad en el
 
 ### Recursos
 
-| Ruta | Contenido | Área |
-|---|---|---|
-| `/api/ventas` | Ventas con sus líneas. Solo el vendedor las registra; el administrador las consulta | Vendedor y nivel 1 |
-| `/api/clientes` | Clientes naturales y jurídicos, con teléfonos y correos. Solo el administrador los elimina | Vendedor y nivel 1 |
-| `/api/productos` | Productos con su stock total | Nivel 1 |
-| `/api/inventario` | Existencias por sucursal y entradas de mercancía | Nivel 1 |
-| `/api/proveedores` | Proveedores con teléfonos y correos | Nivel 2 |
-| `/api/suministros` | Qué proveedor surte qué producto a qué sede, con precio y tiempo de entrega | Nivel 2 |
-| `/api/evaluaciones` | Evaluaciones de calidad de cada suministro | Nivel 2 |
-| `/api/empleados` | Administradores y vendedores | Nivel 3 |
-| `/api/sucursales` | Sucursales y su administrador encargado | Nivel 3 |
-| `/api/marcas`, `/api/categorias`, `/api/metodos-pago` | Catálogos | Nivel 3 |
-| `/api/estadisticas` | Indicadores de ventas, inventario, sucursales y comisiones | Según el indicador |
+| Ruta | Contenido | Lectura | Cambios |
+|---|---|---|---|
+| `/api/ventas` | Ventas con sus líneas | Vendedor (su sede) y nivel 1 | Solo el vendedor registra |
+| `/api/clientes` | Clientes naturales y jurídicos, con teléfonos y correos | Vendedor y nivel 1 | Vendedor y nivel 1; solo el administrador elimina |
+| `/api/productos` | Productos con su stock total | Todos | Nivel 1 |
+| `/api/inventario` | Existencias por sucursal y entradas de mercancía | Vendedor (su sede) y nivel 1 | Nivel 1 |
+| `/api/proveedores` | Proveedores con teléfonos y correos | Nivel 2 | Nivel 2 |
+| `/api/suministros` | Qué proveedor surte qué producto a qué sede, con precio y tiempo de entrega | Nivel 2 | Nivel 2 |
+| `/api/evaluaciones` | Evaluaciones de calidad de cada suministro | Nivel 2 | Nivel 2 |
+| `/api/empleados` | Administradores y vendedores | Todos | Nivel 3 |
+| `/api/sucursales` | Sucursales y su administrador encargado | Todos | Nivel 3 |
+| `/api/marcas`, `/api/categorias`, `/api/metodos-pago` | Catálogos | Todos | Nivel 3 |
+| `/api/estadisticas` | Indicadores de ventas, inventario, sucursales y comisiones | Según el indicador; las comisiones, el vendedor la suya y el administrador desde el nivel 3 | No aplica |
+
+"Todos" son los empleados con sesión: los formularios y las facturas necesitan esas listas, por ejemplo el selector de sede o el nombre del vendedor.
 
 
 ### Errores
